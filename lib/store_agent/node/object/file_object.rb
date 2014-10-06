@@ -4,37 +4,35 @@ module StoreAgent
       attr_writer :body
 
       def create(*params, &block)
-        set_body(*params, &block)
         super do
+          set_body(*params, &block)
           save
         end
       end
 
       def read
-        super
-        open(storage_object_path) do |f|
-          f.read
+        super do
+          open(storage_object_path) do |f|
+            f.read
+          end
         end
       end
 
       def update(*params, &block)
-        super
-        set_body(*params, &block)
-        if @body.nil?
-          raise "file body required"
+        super do
+          set_body(*params, &block)
+          if @body.nil?
+            raise "file body required"
+          end
+          save
+          metadata.update(disk_usage: @body.length - metadata.disk_usage, recursive: true)
         end
-        disk_usage_diff = @body.length - disk_usage
-        self.disk_usage = @body.length
-        metadata.save
-        update_parent_directory_metadata("disk_usage" => disk_usage_diff, "file_count" => 0)
-        save
       end
 
-      def delete
-        super
-        metadata.reload
-        update_parent_directory_metadata("disk_usage" => -disk_usage, "file_count" => -1)
-        FileUtils.rm([storage_object_path, metadata.file_path, permission.file_path])
+      def delete(*)
+        super do
+          FileUtils.rm(storage_object_path)
+        end
       end
 
       def find_object(path)
@@ -67,6 +65,8 @@ module StoreAgent
           yield self
         when (options = params.first).is_a?(String)
           @body = options
+        when options.is_a?(Symbol)
+          @body = options.to_s
         when options.is_a?(Hash)
           @body = options["body"] || options[:body]
         end

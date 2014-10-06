@@ -15,39 +15,34 @@ module StoreAgent
       end
 
       def read
-        File.glob("*")
+        super do
+          FileUtils.cd(storage_object_path) do
+            return Dir.glob("*")
+          end
+        end
       end
 
       def update
         raise "cannot update directory"
       end
 
-      # TODO check permission
-      def delete
-        super
-        errors = []
-        children.each do |child|
-          begin
-            child.delete
-          rescue => e
-            errors << e
+      def delete(*)
+        super do
+          errors = []
+          children.each do |child|
+            begin
+              child.delete(recursive: false)
+            rescue StoreAgent::PermissionDeniedError => e
+              errors << e
+            end
+          end
+          if errors.empty?
+            FileUtils.remove_dir(storage_object_path)
+          else
+            raise StoreAgent::PermissionDeniedError.new(errors: errors)
           end
         end
-        if errors.empty?
-          delete_node
-        else
-          raise errors.inspect
-        end
       end
-
-      def delete_node
-        metadata.reload
-        update_parent_directory_metadata("disk_usage" => -disk_usage, "file_count" => -1)
-        [storage_object_path, File.dirname(metadata.file_path), File.dirname(permission.file_path)].each do |path|
-          FileUtils.remove_dir(path)
-        end
-      end
-      private :delete_node
 
       # TODO mv directory
 
@@ -89,38 +84,21 @@ module StoreAgent
       def directory_metadata
         {
           "is_dir" => true,
-          "directory_size" => to_datasize_format(bytesize),
+          "directory_size" => StoreAgent::Node::Metadata.datasize_format(bytesize),
           "directory_bytes" => bytesize,
-          "directory_size_limit" => to_datasize_format(StoreAgent.config.default_directory_bytesize_limit),
+          "directory_size_limit" => StoreAgent::Node::Metadata.datasize_format(StoreAgent.config.default_directory_bytesize_limit),
           "directory_bytes_limit" => StoreAgent.config.default_directory_bytesize_limit,
           "directory_file_count" => 0,
-          "directory_tree_file_count" => 0
+          "tree_file_count" => 0
         }
-      end
-
-      def disk_usage
-        metadata["directory_bytes"]
-      end
-
-      def disk_usage=(usage)
-        metadata["directory_size"] = to_datasize_format(usage)
-        metadata["directory_bytes"] = usage
       end
 
       def directory_file_count
         metadata["directory_file_count"]
       end
 
-      def directory_file_count=(count)
-        metadata["directory_file_count"] = count
-      end
-
-      def directory_tree_file_count
-        metadata["directory_tree_file_count"]
-      end
-
-      def directory_tree_file_count=(count)
-        metadata["directory_tree_file_count"] = count
+      def tree_file_count
+        metadata["tree_file_count"]
       end
 
       def directory?

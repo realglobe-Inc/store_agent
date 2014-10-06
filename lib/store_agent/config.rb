@@ -18,6 +18,7 @@ module StoreAgent
     attr_accessor :guest_identifier
     attr_accessor :invalid_filenames
     attr_accessor :reject_filenames
+    attr_accessor :lock_timeout
     attr_accessor :default_directory_bytesize_limit
     attr_accessor :json_indent_level
     attr_accessor :super_user_permission
@@ -35,6 +36,7 @@ module StoreAgent
       @guest_identifier = "nobody"
       @invalid_filenames = %w()
       @reject_filenames = %w(. ..)
+      @lock_timeout = 0.1
       @default_directory_bytesize_limit = 2 ** 30
       @super_user_permission = {
         "read" => true,

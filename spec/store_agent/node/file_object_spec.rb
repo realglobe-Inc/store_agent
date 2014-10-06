@@ -42,6 +42,30 @@ RSpec.describe StoreAgent::Node::FileObject do
         expect(workspace.file("foobar.txt").read).to eq "foobar"
       end
     end
+    context "作成失敗するケース" do
+      it "既に同名のディレクトリがある場合、作成できない" do
+        workspace.directory("/foo").create
+        expect do
+          workspace.file("foo").create
+        end.to raise_error
+      end
+      it "既に同名のファイルがある場合、作成できない" do
+        workspace.file("hogefuga.txt").create
+        expect do
+          workspace.directory("hogefuga.txt").create
+        end.to raise_error
+      end
+      it "ファイル名がメタデータの拡張子で終わる場合、作成できない" do
+        expect do
+          workspace.file("hoge.meta").create
+        end.to raise_error
+      end
+      it "ファイル名がパーミッションデータの拡張子で終わる場合、作成できない" do
+        expect do
+          workspace.file("hoge.perm").create
+        end.to raise_error
+      end
+    end
   end
 
   context "ファイル更新のテスト" do

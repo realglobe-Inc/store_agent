@@ -1,13 +1,13 @@
 module StoreAgent
   module Node
     class Attachment
+      include StoreAgent::Validator
+
       attr_reader :object
 
-      def initialize(params)
-        @object = params["object"] || params[:object]
-        if @object.nil?
-          raise ArgumentError, "object is required"
-        end
+      def initialize(object: nil)
+        @object = object
+        validates_to_be_not_nil_value!(:object)
       end
 
       def data
@@ -22,8 +22,17 @@ module StoreAgent
         save
       end
 
+      def delete
+        if object.directory?
+          FileUtils.remove_dir(File.dirname(file_path))
+        else
+          FileUtils.rm(file_path)
+        end
+      end
+
       def save
-        open(file_path, "w") do |f|
+        open(file_path, File::WRONLY | File::CREAT) do |f|
+          f.truncate(0)
           f.write Oj.dump(data, mode: :compat, indent: StoreAgent.config.json_indent_level)
         end
       end
@@ -35,6 +44,10 @@ module StoreAgent
       def reload
         @data = load
         self
+      end
+
+      def inspect
+        Oj.dump(data, mode: :compat, indent: 2)
       end
     end
   end

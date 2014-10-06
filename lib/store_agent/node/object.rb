@@ -1,51 +1,42 @@
 module StoreAgent
   module Node
     class Object
+      include StoreAgent::Validator
+      prepend *[] <<
+        StoreAgent::Node::PathValidator <<
+        StoreAgent::Node::PermissionChecker <<
+        StoreAgent::Node::Locker
+
       attr_reader :workspace, :path
 
-      def initialize(params)
-        %w(workspace path).each do |attribute|
-          value = params[attribute] || params[attribute.to_sym]
-          instance_variable_set("@#{attribute}", value)
-        end
-        if @workspace.nil?
-          raise ArgumentError, "workspace is required"
-        end
-        @path = sanitize_path(@path)
+      def initialize(workspace: nil, path: "/")
+        @workspace = workspace
+        validates_to_be_not_nil_value!(:workspace)
+        @path = sanitize_path(path)
       end
 
-      def create(*params, &block)
-        StoreAgent::Validator.validates_to_be_absent_object!(self)
-        if !root?
-          StoreAgent::Validator.validates_to_be_present_object!(parent_directory)
-        end
-        validate_object_name!
-        if parent_directory && !parent_directory.permission.allow?("write")
-          # TODO error message
-          raise
-        end
-        if block_given?
-          yield self
-        end
+      # TODO rescue and rollback
+      def create(*)
+        yield
         metadata.create
         permission.create
-        update_parent_directory_metadata("disk_usage" => disk_usage, "file_count" => 1)
-        # TODO rescue and rollback
         self
       end
 
-      def read
-        StoreAgent::Validator.validates_to_be_present_object!(self)
-        validate_permission!("read")
+      def read(*)
+        yield
       end
 
-      def update(*params, &block)
-        StoreAgent::Validator.validates_to_be_present_object!(self)
-        validate_permission!("write")
+      def update(*)
+        yield
+        true
       end
 
-      def delete
-        validate_permission!("write")
+      def delete(*)
+        yield
+        metadata.delete
+        permission.delete
+        true
       end
 
       def user
@@ -55,23 +46,6 @@ module StoreAgent
       def parent_directory
         if !root?
           @parent_directory ||= StoreAgent::Node::DirectoryObject.new(workspace: @workspace, path: File.dirname(@path))
-        end
-      end
-
-      def update_parent_directory_metadata(params)
-        if root?
-          return
-        end
-        parent_directory.directory_file_count = parent_directory.directory_file_count + params["file_count"]
-        parent_directory.update_ancestor_directory_metadata(params)
-      end
-
-      def update_ancestor_directory_metadata(params)
-        self.disk_usage = disk_usage + params["disk_usage"]
-        self.directory_tree_file_count = directory_tree_file_count + params["file_count"]
-        metadata.save
-        if parent_directory
-          parent_directory.update_ancestor_directory_metadata(params)
         end
       end
 
@@ -93,7 +67,7 @@ module StoreAgent
 
       def initial_metadata
         {
-          "size" => to_datasize_format(bytesize),
+          "size" => StoreAgent::Node::Metadata.datasize_format(bytesize),
           "bytes" => bytesize,
           "owner" => user.identifier,
           "is_dir" => directory?,
@@ -104,20 +78,12 @@ module StoreAgent
         }
       end
 
-      def validate_permission!(action)
-        if !permission.allow?(action)
-          raise "permission denied: #{action} to #{@path}"
-        end
-      end
-      private :validate_permission!
-
       def disk_usage
-        metadata["bytes"]
+        metadata.disk_usage
       end
 
       def disk_usage=(usage)
-        metadata["size"] = to_datasize_format(usage)
-        metadata["bytes"] = usage
+        metadata.disk_usage=(usage)
       end
 
       def root?
@@ -130,12 +96,6 @@ module StoreAgent
 
       private
 
-      def validate_object_name!
-        if File.basename(@path).end_with?(StoreAgent.config.metadata_extension)
-          raise "invalid name"
-        end
-      end
-
       def sanitize_path(path)
         File.absolute_path("/./#{path}")
       end
@@ -145,18 +105,7 @@ module StoreAgent
       end
 
       def storage_object_path
-        "#{@workspace.storage_dirname}#{@path}"
-      end
-
-      def to_datasize_format(size)
-        byte_names = %w(KB MB GB TB PB)
-        byte_length = size.abs.to_s(2).length
-        if byte_length <= 10
-          "#{size} bytes"
-        else
-          exponent = [byte_names.length, (byte_length - 1) / 10].min
-          sprintf("%0.2f%s", size.to_f / (2 ** (10 * exponent)), byte_names[exponent - 1])
-        end
+        File.absolute_path("#{@workspace.storage_dirname}#{@path}")
       end
 
       def bytesize

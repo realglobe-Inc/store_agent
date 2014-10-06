@@ -1,5 +1,7 @@
 module StoreAgent
   class User
+    include StoreAgent::Validator
+
     attr_reader :identifiers
 
     def initialize(*identifiers)
@@ -8,10 +10,10 @@ module StoreAgent
         raise ArgumentError, "identifier(s) is required"
       end
       @identifiers.each do |identifier|
-        StoreAgent::Validator.validates_to_be_string_or_symbol!(identifier)
-        StoreAgent::Validator.validates_to_be_excluded_slash!(identifier)
-        StoreAgent::Validator.validates_to_be_not_superuser_identifier!(identifier)
-        StoreAgent::Validator.validates_to_be_not_guest_identifier!(identifier)
+        validates_to_be_string_or_symbol!(identifier)
+        validates_to_be_excluded_slash!(identifier)
+        validates_to_be_not_superuser_identifier!(identifier)
+        validates_to_be_not_guest_identifier!(identifier)
       end
     end
 

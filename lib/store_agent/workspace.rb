@@ -1,17 +1,15 @@
 module StoreAgent
   class Workspace
+    include StoreAgent::Validator
+
     attr_reader :user, :namespace
 
-    def initialize(params)
-      %w(user namespace).each do |attribute|
-        value = params[attribute] || params[attribute.to_sym]
-        instance_variable_set("@#{attribute}", value)
-      end
-      if @user.nil?
-        raise ArgumentError, "user is required"
-      end
-      StoreAgent::Validator.validates_to_be_string_or_symbol!(@namespace)
-      StoreAgent::Validator.validates_to_be_excluded_slash!(@namespace)
+    def initialize(user: nil, namespace: nil)
+      @user = user
+      @namespace = namespace
+      validates_to_be_not_nil_value!(:user)
+      validates_to_be_string_or_symbol!(@namespace)
+      validates_to_be_excluded_slash!(@namespace)
     end
 
     def create

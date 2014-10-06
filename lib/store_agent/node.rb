@@ -1,3 +1,6 @@
+require "store_agent/node/prepend_module/path_validator"
+require "store_agent/node/prepend_module/permission_checker"
+require "store_agent/node/prepend_module/locker"
 require "store_agent/node/object"
 require "store_agent/node/object/directory_object"
 require "store_agent/node/object/file_object"

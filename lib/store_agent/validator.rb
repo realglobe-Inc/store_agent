@@ -1,7 +1,5 @@
 module StoreAgent
   module Validator
-    module_function
-
     def validates_to_be_string_or_symbol!(value)
       case
       when value.nil?, value == "", value == :""
@@ -29,15 +27,9 @@ module StoreAgent
       end
     end
 
-    def validates_to_be_present_object!(object)
-      if !object.exists?
-        raise "object not found: #{object.path}"
-      end
-    end
-
-    def validates_to_be_absent_object!(object)
-      if object.exists?
-        raise "object already exists: #{object.path}"
+    def validates_to_be_not_nil_value!(accessor_method_name)
+      if send(accessor_method_name).nil?
+        raise ArgumentError, "#{accessor_method_name} is nil"
       end
     end
   end

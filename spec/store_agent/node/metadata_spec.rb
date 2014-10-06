@@ -48,7 +48,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@root_node.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 2" do
-        expect(@root_node.directory_tree_file_count).to eq 2
+        expect(@root_node.tree_file_count).to eq 2
       end
     end
     context "中間ディレクトリ" do
@@ -59,7 +59,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@dir_1.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 1" do
-        expect(@dir_1.directory_tree_file_count).to eq 1
+        expect(@dir_1.tree_file_count).to eq 1
       end
     end
     context "最下層のディレクトリ" do
@@ -70,7 +70,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@dir_2.directory_file_count).to eq 0
       end
       it "サブツリー全体の配下ファイル数は 0" do
-        expect(@dir_2.directory_tree_file_count).to eq 0
+        expect(@dir_2.tree_file_count).to eq 0
       end
     end
   end
@@ -98,7 +98,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@root_node.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 2" do
-        expect(@root_node.directory_tree_file_count).to eq 2
+        expect(@root_node.tree_file_count).to eq 2
       end
     end
     context "ディレクトリ" do
@@ -109,7 +109,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@dir.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 1" do
-        expect(@dir.directory_tree_file_count).to eq 1
+        expect(@dir.tree_file_count).to eq 1
       end
     end
     context "ファイル" do
@@ -121,7 +121,7 @@ RSpec.describe StoreAgent::Node::Metadata do
           @file.directory_file_count
         end.to raise_error
         expect do
-          @file.directory_tree_file_count
+          @file.tree_file_count
         end.to raise_error
       end
     end
@@ -151,7 +151,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@root_node.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 2" do
-        expect(@root_node.directory_tree_file_count).to eq 2
+        expect(@root_node.tree_file_count).to eq 2
       end
     end
     context "ディレクトリ" do
@@ -162,7 +162,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@dir.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 1" do
-        expect(@dir.directory_tree_file_count).to eq 1
+        expect(@dir.tree_file_count).to eq 1
       end
     end
     context "ファイル" do
@@ -174,7 +174,7 @@ RSpec.describe StoreAgent::Node::Metadata do
           @file.directory_file_count
         end.to raise_error
         expect do
-          @file.directory_tree_file_count
+          @file.tree_file_count
         end.to raise_error
       end
     end
@@ -204,7 +204,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@root_node.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 2" do
-        expect(@root_node.directory_tree_file_count).to eq 2
+        expect(@root_node.tree_file_count).to eq 2
       end
     end
     context "ディレクトリ" do
@@ -215,12 +215,11 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@dir.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 1" do
-        expect(@dir.directory_tree_file_count).to eq 1
+        expect(@dir.tree_file_count).to eq 1
       end
-      it "メタデータを変更後に保存しないで削除した場合、削除前の情報が使用される" do
+      it "ファイルの中身を変更後に保存しないで削除した場合、変更前の情報が使用される" do
         file = owner.workspace(workspace_name).file("foo/foobarhoge.txt").create("body" => "0987654321")
         file.body = ""
-        file.metadata["bytes"] = 0
         file.delete
         expect(@dir.disk_usage).to eq (4096 + 10)
       end
@@ -250,7 +249,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@root_node.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 1" do
-        expect(@root_node.directory_tree_file_count).to eq 1
+        expect(@root_node.tree_file_count).to eq 1
       end
     end
     context "ディレクトリ" do
@@ -261,7 +260,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@dir.directory_file_count).to eq 0
       end
       it "サブツリー全体の配下ファイル数は 0" do
-        expect(@dir.directory_tree_file_count).to eq 0
+        expect(@dir.tree_file_count).to eq 0
       end
     end
   end
@@ -291,7 +290,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@root_node.directory_file_count).to eq 1
       end
       it "サブツリー全体の配下ファイル数は 1" do
-        expect(@root_node.directory_tree_file_count).to eq 1
+        expect(@root_node.tree_file_count).to eq 1
       end
     end
     context "ディレクトリ" do
@@ -302,7 +301,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         expect(@dir.directory_file_count).to eq 0
       end
       it "サブツリー全体の配下ファイル数は 0" do
-        expect(@dir.directory_tree_file_count).to eq 0
+        expect(@dir.tree_file_count).to eq 0
       end
     end
   end

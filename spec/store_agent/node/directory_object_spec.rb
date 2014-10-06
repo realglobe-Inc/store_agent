@@ -63,9 +63,14 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
         workspace.directory("/bar").create
       end.to raise_error
     end
-    it "ディレクトリ名が .meta で終わる場合、作成できない" do
+    it "ディレクトリ名がメタデータの拡張子で終わる場合、作成できない" do
       expect do
         workspace.directory("/hoge.meta").create
+      end.to raise_error
+    end
+    it "ディレクトリ名がパーミッションデータの拡張子で終わる場合、作成できない" do
+      expect do
+        workspace.directory("/hoge.perm").create
       end.to raise_error
     end
   end
@@ -89,6 +94,11 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
         workspace.directory("/delete_test").delete
       end
 
+      it "ルートノードは削除できない" do
+        expect do
+          workspace.directory("/").delete
+        end.to raise_error
+      end
       it "ディレクトリが丸ごと削除される" do
         expect(workspace.directory("/delete_test").exists?).to be false
       end
@@ -131,7 +141,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
             expect(root_node.directory_file_count).to eq 1
           end
           it "サブツリー全体の配下ファイル数は 5" do
-            expect(root_node.directory_tree_file_count).to eq 5
+            expect(root_node.tree_file_count).to eq 5
           end
         end
         context "中間ディレクトリ" do
@@ -146,7 +156,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
             expect(dir.directory_file_count).to eq 2
           end
           it "サブツリー全体の配下ファイル数は 4" do
-            expect(dir.directory_tree_file_count).to eq 4
+            expect(dir.tree_file_count).to eq 4
           end
         end
         context "配下ファイルに削除権限が無いディレクトリ" do
@@ -161,7 +171,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
             expect(dir.directory_file_count).to eq 1
           end
           it "サブツリー全体の配下ファイル数は 1" do
-            expect(dir.directory_tree_file_count).to eq 1
+            expect(dir.tree_file_count).to eq 1
           end
         end
         context "削除権限が無いディレクトリ" do
@@ -176,7 +186,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
             expect(dir.directory_file_count).to eq 1
           end
           it "サブツリー全体の配下ファイル数は 1" do
-            expect(dir.directory_tree_file_count).to eq 1
+            expect(dir.tree_file_count).to eq 1
           end
         end
       end
