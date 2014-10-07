@@ -32,6 +32,7 @@ module StoreAgent
       def delete(*)
         super do
           FileUtils.rm(storage_object_path)
+          workspace.version_manager.remove(storage_object_path)
         end
       end
 
@@ -51,6 +52,7 @@ module StoreAgent
         open(storage_object_path, "w") do |f|
           f.write @body
         end
+        workspace.version_manager.add(storage_object_path)
       end
 
       def children

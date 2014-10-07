@@ -77,6 +77,21 @@ p directory_01.metadata # => {...}
 p file_01.metadata # => {...}
 ```
 
+## VersionManager
+
+デフォルトではバージョン管理をしない設定になっている。  
+gitでバージョン管理する場合、以下のように設定する。  
+
+```ruby
+# Gemfile
+gem "git"
+
+# initialize
+StoreAgent.configure do |c|
+  c.version_manager = StoreAgent::VersionManager::RubyGit
+end
+```
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/store_agent/fork )

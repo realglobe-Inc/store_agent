@@ -11,6 +11,7 @@ module StoreAgent
       def create
         super do
           FileUtils.mkdir(storage_object_path)
+          workspace.version_manager.add(FileUtils.touch("#{storage_object_path}/.keep"))
         end
       end
 
@@ -41,6 +42,7 @@ module StoreAgent
           else
             raise StoreAgent::PermissionDeniedError.new(errors: errors)
           end
+          workspace.version_manager.remove("#{storage_object_path}/.keep")
         end
       end
 

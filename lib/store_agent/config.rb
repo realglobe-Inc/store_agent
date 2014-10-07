@@ -16,6 +16,7 @@ module StoreAgent
     attr_accessor :permission_extension
     attr_accessor :superuser_identifier
     attr_accessor :guest_identifier
+    attr_accessor :version_manager
     attr_accessor :invalid_filenames
     attr_accessor :reject_filenames
     attr_accessor :lock_timeout
@@ -34,8 +35,9 @@ module StoreAgent
       @permission_extension = ".perm"
       @superuser_identifier = "root"
       @guest_identifier = "nobody"
+      @version_manager = StoreAgent::VersionManager
       @invalid_filenames = %w()
-      @reject_filenames = %w(. ..)
+      @reject_filenames = %w(. .. .keep)
       @lock_timeout = 0.1
       @default_directory_bytesize_limit = 2 ** 30
       @super_user_permission = {

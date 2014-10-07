@@ -2,7 +2,7 @@ module StoreAgent
   class Workspace
     include StoreAgent::Validator
 
-    attr_reader :user, :namespace
+    attr_reader :user, :namespace, :version_manager
 
     def initialize(user: nil, namespace: nil)
       @user = user
@@ -10,6 +10,7 @@ module StoreAgent
       validates_to_be_not_nil_value!(:user)
       validates_to_be_string_or_symbol!(@namespace)
       validates_to_be_excluded_slash!(@namespace)
+      @version_manager = StoreAgent.config.version_manager.new(workspace: self)
     end
 
     def create
@@ -17,7 +18,15 @@ module StoreAgent
         raise "workspace #{@namespace} is already exists"
       end
       FileUtils.mkdir_p(namespace_dirname)
+      @version_manager.init
       root.create
+    end
+
+    def delete
+      if !exists?
+        raise "workspace #{@namespace} not found"
+      end
+      FileUtils.remove_dir(namespace_dirname)
     end
 
     def root

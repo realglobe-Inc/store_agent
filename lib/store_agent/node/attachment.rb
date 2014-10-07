@@ -28,6 +28,7 @@ module StoreAgent
         else
           FileUtils.rm(file_path)
         end
+        object.workspace.version_manager.remove(file_path)
       end
 
       def save
@@ -35,6 +36,7 @@ module StoreAgent
           f.truncate(0)
           f.write Oj.dump(data, mode: :compat, indent: StoreAgent.config.json_indent_level)
         end
+        object.workspace.version_manager.add(file_path)
       end
 
       def load

@@ -15,11 +15,12 @@ module StoreAgent
         @path = sanitize_path(path)
       end
 
-      # TODO rescue and rollback
       def create(*)
-        yield
-        metadata.create
-        permission.create
+        workspace.version_manager.transaction("created #{path}") do
+          yield
+          metadata.create
+          permission.create
+        end
         self
       end
 
@@ -28,14 +29,18 @@ module StoreAgent
       end
 
       def update(*)
-        yield
+        workspace.version_manager.transaction("updated #{path}") do
+          yield
+        end
         true
       end
 
       def delete(*)
-        yield
-        metadata.delete
-        permission.delete
+        workspace.version_manager.transaction("deleted #{path}") do
+          yield
+          metadata.delete
+          permission.delete
+        end
         true
       end
 
