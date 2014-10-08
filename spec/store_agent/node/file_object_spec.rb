@@ -26,12 +26,12 @@ RSpec.describe StoreAgent::Node::FileObject do
     end
     context "引数にハッシュを渡す場合" do
       it "body パラメータがファイルの中身になる" do
-        workspace.file("hoge.txt").create("body" => "hoge")
-        expect(workspace.file("hoge.txt").read).to eq "hoge"
+        workspace.file(".git").create("body" => "hoge")
+        expect(workspace.file(".git").read).to eq "hoge"
       end
       it "body パラメータはシンボルでも良い" do
-        workspace.file("fuga.txt").create(body: "fuga")
-        expect(workspace.file("fuga.txt").read).to eq "fuga"
+        workspace.file(".keep").create(body: "fuga")
+        expect(workspace.file(".keep").read).to eq "fuga"
       end
     end
     context "引数にブロックを渡す場合" do

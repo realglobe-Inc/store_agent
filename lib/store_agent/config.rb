@@ -37,7 +37,7 @@ module StoreAgent
       @guest_identifier = "nobody"
       @version_manager = StoreAgent::VersionManager
       @invalid_filenames = %w()
-      @reject_filenames = %w(. .. .keep)
+      @reject_filenames = %w(. ..)
       @lock_timeout = 0.1
       @default_directory_bytesize_limit = 2 ** 30
       @super_user_permission = {

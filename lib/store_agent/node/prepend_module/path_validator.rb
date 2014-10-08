@@ -47,13 +47,17 @@ module StoreAgent
       end
 
       def be_not_reserved!
+        basename = File.basename(path)
         reserved_extensions = [] <<
           StoreAgent.config.metadata_extension <<
           StoreAgent.config.permission_extension
         reserved_extensions.each do |extension|
-          if File.basename(path).end_with?(extension)
-            raise StoreAgent::PathError, "#{extension} is reserved"
+          if basename.end_with?(extension)
+            raise StoreAgent::PathError, "extension '#{extension}' is reserved"
           end
+        end
+        if StoreAgent.config.version_manager.reserved_filenames.include?(basename)
+          raise StoreAgent::PathError, "filename '#{basename}' is reserved"
         end
       end
     end

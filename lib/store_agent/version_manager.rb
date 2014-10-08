@@ -1,8 +1,13 @@
+require "store_agent/version_manager/rugged_git"
 require "store_agent/version_manager/ruby_git"
 
 module StoreAgent
   class VersionManager
     attr_reader :workspace
+
+    def self.reserved_filenames
+      []
+    end
 
     def initialize(workspace: nil)
       @workspace = workspace

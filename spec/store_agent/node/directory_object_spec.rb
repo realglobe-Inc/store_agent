@@ -73,6 +73,16 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
         workspace.directory("/hoge.perm").create
       end.to raise_error
     end
+    it "パスに問題が無ければディレクトリ作成できる" do
+      workspace.directory("hoge").create
+      expect(workspace.directory("hoge").exists?).to be true
+      workspace.directory("fuga").create
+      expect(workspace.directory("fuga").exists?).to be true
+      workspace.directory(".git").create
+      expect(workspace.directory(".git").exists?).to be true
+      workspace.directory(".keep").create
+      expect(workspace.directory(".keep").exists?).to be true
+    end
   end
 
   context "ディレクトリ削除のテスト" do

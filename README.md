@@ -82,6 +82,20 @@ p file_01.metadata # => {...}
 デフォルトではバージョン管理をしない設定になっている。  
 gitでバージョン管理する場合、以下のように設定する。  
 
+1. [rugged](https://github.com/libgit2/rugged)を使用する場合  
+
+```ruby
+# Gemfile
+gem "rugged"
+
+# initialize
+StoreAgent.configure do |c|
+  c.version_manager = StoreAgent::VersionManager::RuggedGit
+end
+```
+
+2. [ruby-git](https://github.com/schacon/ruby-git)を使用する場合  
+
 ```ruby
 # Gemfile
 gem "git"

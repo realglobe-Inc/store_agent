@@ -1,6 +1,10 @@
 module StoreAgent
   class VersionManager
     class RubyGit < VersionManager
+      def self.reserved_filenames
+        %w(.git .keep)
+      end
+
       def init
         super do
           Git.init
@@ -9,6 +13,7 @@ module StoreAgent
 
       def add(*paths)
         super do
+          FileUtils.touch(paths)
           repository.add(paths, force: true)
         end
       end
@@ -29,8 +34,12 @@ module StoreAgent
         raise e
       end
 
+      def last_commit_id
+        logs(".").first.objectish
+      end
+
       def revisions(path)
-        logs.map(&:objectish)
+        logs(path).map(&:objectish)
       end
 
       def logs(path)

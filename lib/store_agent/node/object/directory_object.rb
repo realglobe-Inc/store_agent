@@ -11,7 +11,7 @@ module StoreAgent
       def create
         super do
           FileUtils.mkdir(storage_object_path)
-          workspace.version_manager.add(FileUtils.touch("#{storage_object_path}/.keep"))
+          workspace.version_manager.add("#{storage_object_path}/.keep")
         end
       end
 
@@ -73,7 +73,7 @@ module StoreAgent
         FileUtils.cd(storage_object_path) do
           node_names = Dir.glob("*", File::FNM_DOTMATCH)
         end
-        node_names = node_names - StoreAgent.config.reject_filenames
+        node_names = node_names - StoreAgent.config.reject_filenames - StoreAgent.config.version_manager.reserved_filenames
         node_names.map{|filename|
           find_object(filename)
         }
