@@ -1,13 +1,7 @@
 module StoreAgent
   module Node
     class Metadata < Attachment
-      def [](key)
-        data[key]
-      end
-
-      def []=(key, value)
-        data[key] = value
-      end
+      def_delegators :data, *%w([] []=)
 
       def create
         super
@@ -66,17 +60,9 @@ module StoreAgent
 
       private
 
-      def root?
-        object.root?
-      end
-
-      def directory?
-        object.directory?
-      end
-
       def parent
         if root?
-          SuperRoot.new
+          SuperRootMetadata.new
         else
           object.parent_directory.metadata
         end
@@ -86,7 +72,7 @@ module StoreAgent
         object.initial_metadata
       end
 
-      class SuperRoot < Metadata
+      class SuperRootMetadata < Metadata
         def initialize(*)
         end
 

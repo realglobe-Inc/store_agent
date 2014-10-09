@@ -1,3 +1,4 @@
+require "forwardable"
 require "oj"
 require "store_agent/version"
 require "store_agent/config"

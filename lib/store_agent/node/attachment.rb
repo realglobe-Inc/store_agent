@@ -1,9 +1,11 @@
 module StoreAgent
   module Node
     class Attachment
+      extend Forwardable
       include StoreAgent::Validator
 
       attr_reader :object
+      def_delegators :object, *%w(current_user root? directory?)
 
       def initialize(object: nil)
         @object = object
@@ -12,10 +14,6 @@ module StoreAgent
 
       def data
         @data ||= (load || initial_data)
-      end
-
-      def current_user
-        @object.current_user
       end
 
       def create

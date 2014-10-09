@@ -1,8 +1,10 @@
 module StoreAgent
   class Workspace
+    extend Forwardable
     include StoreAgent::Validator
 
     attr_reader :current_user, :namespace, :version_manager
+    def_delegators :root, *%w(directory file exists?)
 
     def initialize(current_user: nil, namespace: nil)
       @current_user = current_user
@@ -30,19 +32,7 @@ module StoreAgent
     end
 
     def root
-      StoreAgent::Node::DirectoryObject.new(workspace: self, path: "/")
-    end
-
-    def directory(path)
-      root.directory(path)
-    end
-
-    def file(path)
-      root.file(path)
-    end
-
-    def exists?
-      root.exists?
+      @root ||= StoreAgent::Node::DirectoryObject.new(workspace: self, path: "/")
     end
 
     def namespace_dirname

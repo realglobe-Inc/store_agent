@@ -1,6 +1,7 @@
 module StoreAgent
   module Node
     class Object
+      extend Forwardable
       include StoreAgent::Validator
       prepend *[] <<
         StoreAgent::Node::PathValidator <<
@@ -8,6 +9,7 @@ module StoreAgent
         StoreAgent::Node::Locker
 
       attr_reader :workspace, :path
+      def_delegators :workspace, *%w(current_user)
 
       def initialize(workspace: nil, path: "/")
         @workspace = workspace
@@ -21,10 +23,6 @@ module StoreAgent
 
       def permission
         @permission ||= StoreAgent::Node::Permission.new(object: self)
-      end
-
-      def current_user
-        @workspace.current_user
       end
 
       def create(*)
