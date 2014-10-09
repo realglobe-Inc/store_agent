@@ -1,10 +1,16 @@
 module StoreAgent
-  def self.configure
+  module_function
+
+  def configure
     yield config
   end
 
-  def self.config
+  def config
     @config ||= StoreAgent::Configuration.new
+  end
+
+  def reserved_filenames
+    config.reserved_filenames | config.version_manager.reserved_filenames
   end
 
   class Configuration
@@ -17,8 +23,7 @@ module StoreAgent
     attr_accessor :superuser_identifier
     attr_accessor :guest_identifier
     attr_accessor :version_manager
-    attr_accessor :invalid_filenames
-    attr_accessor :reject_filenames
+    attr_accessor :reserved_filenames
     attr_accessor :lock_timeout
     attr_accessor :default_directory_bytesize_limit
     attr_accessor :json_indent_level
@@ -36,8 +41,7 @@ module StoreAgent
       @superuser_identifier = "root"
       @guest_identifier = "nobody"
       @version_manager = StoreAgent::VersionManager
-      @invalid_filenames = %w()
-      @reject_filenames = %w(. ..)
+      @reserved_filenames = %w(. ..)
       @lock_timeout = 0.1
       @default_directory_bytesize_limit = 2 ** 30
       @super_user_permission = {

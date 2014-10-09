@@ -108,12 +108,12 @@ RSpec.shared_context "git" do
     it "名前が .keep のディレクトリ" do
       expect do
         workspace.directory(".keep").create
-      end.to raise_error(StoreAgent::PathError)
+      end.to raise_error(StoreAgent::InvalidPathError)
     end
     it "名前が .keep のファイル" do
       expect do
         workspace.file(".keep").create
-      end.to raise_error(StoreAgent::PathError)
+      end.to raise_error(StoreAgent::InvalidPathError)
     end
   end
 end

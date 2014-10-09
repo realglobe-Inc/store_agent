@@ -1,5 +1,5 @@
 module StoreAgent
-  class PathError < StandardError
+  class InvalidPathError < StandardError
   end
 
   class PermissionDeniedError < StandardError

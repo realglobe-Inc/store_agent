@@ -25,7 +25,7 @@ RSpec.describe StoreAgent::Node::PathValidator do
     it "既にオブジェクトが存在する場合、ディレクトリ作成はエラーになる" do
       expect do
         workspace.directory("/create").create
-      end.to raise_error(StoreAgent::PathError)
+      end.to raise_error(StoreAgent::InvalidPathError)
       expect do
         workspace.directory("/create/tmp.txt").create
       end.to raise_error

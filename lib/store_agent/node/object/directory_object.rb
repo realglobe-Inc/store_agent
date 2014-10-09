@@ -15,11 +15,10 @@ module StoreAgent
         end
       end
 
+      # TODO
       def read
         super do
-          FileUtils.cd(storage_object_path) do
-            return Dir.glob("*")
-          end
+          child_filenames
         end
       end
 
@@ -69,12 +68,7 @@ module StoreAgent
       end
 
       def children
-        node_names = []
-        FileUtils.cd(storage_object_path) do
-          node_names = Dir.glob("*", File::FNM_DOTMATCH)
-        end
-        node_names = node_names - StoreAgent.config.reject_filenames - StoreAgent.config.version_manager.reserved_filenames
-        node_names.map{|filename|
+        child_filenames.map{|filename|
           find_object(filename)
         }
       end
@@ -111,6 +105,12 @@ module StoreAgent
 
       def namespaced_absolute_path(path)
         "#{@path}#{sanitize_path(path)}"
+      end
+
+      def child_filenames
+        FileUtils.cd(storage_object_path) do
+          return (Dir.glob("*", File::FNM_DOTMATCH) - StoreAgent.reserved_filenames)
+        end
       end
     end
   end

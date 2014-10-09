@@ -30,19 +30,19 @@ module StoreAgent
 
       def be_present!
         if !exists?
-          raise StoreAgent::PathError, "object not found: #{path}"
+          raise StoreAgent::InvalidPathError, "object not found: #{path}"
         end
       end
 
       def be_absent!
         if exists?
-          raise StoreAgent::PathError, "object already exists: #{path}"
+          raise StoreAgent::InvalidPathError, "object already exists: #{path}"
         end
       end
 
       def be_not_root!
         if root?
-          raise StoreAgent::PathError, "can't delete root node"
+          raise StoreAgent::InvalidPathError, "can't delete root node"
         end
       end
 
@@ -53,11 +53,11 @@ module StoreAgent
           StoreAgent.config.permission_extension
         reserved_extensions.each do |extension|
           if basename.end_with?(extension)
-            raise StoreAgent::PathError, "extension '#{extension}' is reserved"
+            raise StoreAgent::InvalidPathError, "extension '#{extension}' is reserved"
           end
         end
-        if StoreAgent.config.version_manager.reserved_filenames.include?(basename)
-          raise StoreAgent::PathError, "filename '#{basename}' is reserved"
+        if StoreAgent.reserved_filenames.include?(basename)
+          raise StoreAgent::InvalidPathError, "filename '#{basename}' is reserved"
         end
       end
     end
