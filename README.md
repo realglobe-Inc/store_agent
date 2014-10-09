@@ -75,6 +75,16 @@ file_02.delete # => StoreAgent::PathError
 # メタデータ
 p directory_01.metadata # => {...}
 p file_01.metadata # => {...}
+
+# パーミッション変更
+file_01.set_permission(identifier: "user_yyy", permission_values: {"read" => true, "write" => false})
+directory_01.set_permission(identifier: "user_yyy", permission_values: {"read" => true})
+directory_02.set_permission(identifier: "user_yyy", permission_values: {"read" => true, "write" => true}, recursive: true)
+
+# パーミッション解除
+file_01.unset_permission(identifier: "user_yyy", permission_names: "read")
+directory_01.unset_permission(identifier: "user_yyy", permission_names: ["read"])
+directory_02.unset_permission(identifier: "user_yyy", permission_names: ["read", "write"], recursive: true)
 ```
 
 ## VersionManager

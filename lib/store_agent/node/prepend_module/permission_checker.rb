@@ -23,6 +23,16 @@ module StoreAgent
         super
       end
 
+      def set_permission(*)
+        authorize!("write")
+        super
+      end
+
+      def set_permission(*)
+        authorize!("write")
+        super
+      end
+
       protected
 
       def authorize!(permission_name)

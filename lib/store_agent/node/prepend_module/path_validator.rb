@@ -31,6 +31,18 @@ module StoreAgent
         super
       end
 
+      def set_permission(*)
+        be_present!
+        be_not_reserved!
+        super
+      end
+
+      def unset_permission(*)
+        be_present!
+        be_not_reserved!
+        super
+      end
+
       protected
 
       def be_present!

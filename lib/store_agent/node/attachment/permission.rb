@@ -2,42 +2,34 @@ module StoreAgent
   module Node
     class Permission < Attachment
       def allow?(permission_name)
-        if current_user.super_user?
-          return data["superuser"][permission_name]
+        case
+        when current_user.super_user?
+          data["superuser"][permission_name]
+        when identifier = permission_defined_user_identifier(permission_name)
+          data["users"][identifier][permission_name]
+        else
+          !!data["guest"][permission_name]
         end
-        current_user.identifiers.reverse.each do |identifier|
-          if (user_permission = data["users"][identifier]) && user_permission.key?(permission_name)
-            return user_permission[permission_name]
-          end
-        end
-        !!data["guest"][permission_name]
       end
 
-      def set!(identifier, permission_values, options = {})
+      def set!(identifier: nil, permission_values: {})
         user_permission = (data["users"][identifier] ||= {})
         permission_values.each do |permission_name, value|
           user_permission[permission_name] = value
         end
         save
-        if options[:recursive]
-          object.children.each do |child|
-            child.permission.set!(identifier, permission_values, options)
-          end
-        end
       end
 
-      def unset!(identifier, permission_names, options = {})
+      def unset!(identifier: nil, permission_names: [])
         permission_names = [permission_names].flatten
         if user_permission = data["users"][identifier]
-          user_permission.delete_if do |key, _|
-            permission_names.include?(key)
+          user_permission.delete_if do |permission_name, _|
+            permission_names.include?(permission_name)
+          end
+          if user_permission.empty?
+            data["users"].delete(identifier)
           end
           save
-        end
-        if options[:recursive]
-          object.children.each do |child|
-            child.permission.unset!(identifier, permission_names, options)
-          end
         end
       end
 
@@ -46,6 +38,13 @@ module StoreAgent
       end
 
       private
+
+      def permission_defined_user_identifier(permission_name)
+        current_user.identifiers.reverse.find do |identifier|
+          user_permission = data["users"][identifier]
+          user_permission && user_permission.key?(permission_name)
+        end
+      end
 
       def initial_data
         user_permission = {}

@@ -40,6 +40,16 @@ module StoreAgent
         end
       end
 
+      def set_permission(*)
+        super do
+        end
+      end
+
+      def unset_permission(*)
+        super do
+        end
+      end
+
       def find_object(path)
         raise "#{@path} is not directory"
       end

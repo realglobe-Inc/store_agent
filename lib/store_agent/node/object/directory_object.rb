@@ -34,20 +34,35 @@ module StoreAgent
 
       def delete(*)
         super do
-          errors = []
-          children.each do |child|
-            begin
-              child.delete(recursive: false)
-            rescue StoreAgent::PermissionDeniedError => e
-              errors << e
-            end
+          success, errors = call_for_children do |child|
+            child.delete(recursive: false)
           end
-          if errors.empty?
+          if success
             FileUtils.remove_dir(storage_object_path)
           else
             raise StoreAgent::PermissionDeniedError.new(errors: errors)
           end
           workspace.version_manager.remove("#{storage_object_path}.keep")
+        end
+      end
+
+      def set_permission(identifier: nil, permission_values: {}, recursive: false)
+        super do
+          if recursive
+            success, errors = call_for_children do |child|
+              child.set_permission(identifier: identifier, permission_values: permission_values)
+            end
+          end
+        end
+      end
+
+      def unset_permission(identifier: nil, permission_names: [], recursive: false)
+        super do
+          if recursive
+            success, errors = call_for_children do |child|
+              child.unset_permission(identifier: identifier, permission_names: permission_names)
+            end
+          end
         end
       end
 
@@ -117,6 +132,18 @@ module StoreAgent
         FileUtils.cd(storage_object_path) do
           return Dir.glob("*", File::FNM_DOTMATCH)
         end
+      end
+
+      def call_for_children
+        errors = []
+        children.each do |child|
+          begin
+            yield child
+          rescue StoreAgent::PermissionDeniedError => e
+            errors << e
+          end
+        end
+        return errors.empty?, errors
       end
     end
   end

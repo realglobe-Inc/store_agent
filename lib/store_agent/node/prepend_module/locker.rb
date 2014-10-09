@@ -25,6 +25,21 @@ module StoreAgent
         end
       end
 
+      # TODO recursive_to_root, recursive_to_leaf
+      # TODO lock_shared recursive_to_root
+      def set_permission(*)
+        lock!(lock_mode: File::LOCK_EX, recursive: false) do
+          super
+        end
+      end
+
+      # TODO
+      def unset_permission(*)
+        lock!(lock_mode: File::LOCK_EX, recursive: false) do
+          super
+        end
+      end
+
       protected
 
       # TODO

@@ -163,4 +163,29 @@ RSpec.shared_context "git" do
       expect(workspace.file("revision/update.txt").read(revision: revision)).to eq "hoge"
     end
   end
+  context "パーミッションの変更がバージョン管理されている" do
+    let :workspace do
+      user.workspace("#{workspace_name}_permission")
+    end
+    before do
+      if !workspace.exists?
+        workspace.create
+      end
+    end
+
+    it "パーミッションの設定後にコミットされる" do
+      workspace.directory("set").create
+      workspace.file("set/foo.txt").create
+      revision = workspace.version_manager.revisions.first
+      workspace.file("set/foo.txt").set_permission(identifier: "foo", permission_values: {write: false})
+      expect(workspace.version_manager.revisions.first).to_not eq revision
+    end
+    it "パーミッションの設定解除後にコミットされる" do
+      workspace.directory("unset").create
+      workspace.file("unset/bar.txt").create
+      revision = workspace.version_manager.revisions.first
+      workspace.file("unset/bar.txt").unset_permission(identifier: "foo", permission_names: ["read", "write"])
+      expect(workspace.version_manager.revisions.first).to_not eq revision
+    end
+  end
 end

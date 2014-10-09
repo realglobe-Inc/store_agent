@@ -54,6 +54,20 @@ module StoreAgent
         true
       end
 
+      def set_permission(identifier: nil, permission_values: {}, recursive: nil)
+        workspace.version_manager.transaction("add_permission #{path}") do
+          permission.set!(identifier: identifier, permission_values: permission_values)
+          yield
+        end
+      end
+
+      def unset_permission(identifier: nil, permission_names: [], recursive: nil)
+        workspace.version_manager.transaction("remove_permission #{path}") do
+          permission.unset!(identifier: identifier, permission_names: permission_names)
+          yield
+        end
+      end
+
       def parent_directory
         if !root?
           @parent_directory ||= StoreAgent::Node::DirectoryObject.new(workspace: @workspace, path: File.dirname(@path))

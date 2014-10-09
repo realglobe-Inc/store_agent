@@ -128,10 +128,10 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
       before do
         workspace.directory("/delete_test/bar").create
         workspace.file("/delete_test/bar/hoge.txt").create("1234567890")
-        workspace.file("/delete_test/bar/hoge.txt").permission.unset!("foo", "write")
+        workspace.file("/delete_test/bar/hoge.txt").unset_permission(identifier: "foo", permission_names: "write")
         workspace.directory("/delete_test/foobar").create
         workspace.file("/delete_test/foobar/fuga.txt").create("12345678901234567890")
-        workspace.directory("/delete_test/foobar").permission.unset!("foo", "write")
+        workspace.directory("/delete_test/foobar").unset_permission(identifier: "foo", permission_names: "write")
         begin
           workspace.directory("/delete_test").delete
         rescue

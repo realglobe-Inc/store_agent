@@ -61,30 +61,30 @@ RSpec.describe StoreAgent::Node::Permission do
       end
 
       it "ファイルの権限を変更する" do
-        owner.workspace(workspace_name).file("bar/hoge.txt").permission.set!("user_id", "read" => true)
+        owner.workspace(workspace_name).file("bar/hoge.txt").set_permission(identifier: "user_id", permission_values: {"read" => true})
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("read")).to be true
-        owner.workspace(workspace_name).file("bar/hoge.txt").permission.set!("user_id", "read" => false)
+        owner.workspace(workspace_name).file("bar/hoge.txt").set_permission(identifier: "user_id", permission_values: {"read" => false})
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("read")).to be false
-        owner.workspace(workspace_name).file("bar/hoge.txt").permission.set!("user_id", "read" => true)
-        owner.workspace(workspace_name).file("bar/hoge.txt").permission.unset!("user_id", "read")
+        owner.workspace(workspace_name).file("bar/hoge.txt").set_permission(identifier: "user_id", permission_values: {"read" => true})
+        owner.workspace(workspace_name).file("bar/hoge.txt").unset_permission(identifier: "user_id", permission_names: "read")
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("read")).to be false
       end
       it "ディレクトリの単独の権限を変更した場合、配下ファイルの権限は変わらない" do
-        owner.workspace(workspace_name).directory("bar").permission.set!("user_id", "write" => true)
+        owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"write" => true})
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("write")).to be false
-        owner.workspace(workspace_name).directory("bar").permission.set!("user_id", "write" => false)
+        owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"write" => false})
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("write")).to be false
-        owner.workspace(workspace_name).directory("bar").permission.set!("user_id", {"write" => true}, {recursive: true})
-        owner.workspace(workspace_name).directory("bar").permission.unset!("user_id", "write")
+        owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"write" => true}, recursive: true)
+        owner.workspace(workspace_name).directory("bar").unset_permission(identifier: "user_id", permission_names: "write")
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("write")).to be true
       end
       it "サブツリー全体の権限を変更した場合、配下ファイルの権限も変更される" do
-        owner.workspace(workspace_name).directory("bar").permission.set!("user_id", {"execute" => true}, {recursive: true})
+        owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"execute" => true}, recursive: true)
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("execute")).to be true
-        owner.workspace(workspace_name).directory("bar").permission.set!("user_id", {"execute" => false}, {recursive: true})
+        owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"execute" => false}, recursive: true)
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("execute")).to be false
-        owner.workspace(workspace_name).directory("bar").permission.set!("user_id", {"execute" => true}, {recursive: true})
-        owner.workspace(workspace_name).directory("bar").permission.unset!("user_id", "execute", {recursive: true})
+        owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"execute" => true}, recursive: true)
+        owner.workspace(workspace_name).directory("bar").unset_permission(identifier: "user_id", permission_names: "execute", recursive: true)
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("execute")).to be false
       end
     end
@@ -128,7 +128,7 @@ RSpec.describe StoreAgent::Node::Permission do
         end.to raise_error
       end
       it "権限を付与されればファイルを読めるようになる" do
-        owner.workspace(workspace_name).file("foo/hoge.txt").permission.set!("user_id", "read" => true)
+        owner.workspace(workspace_name).file("foo/hoge.txt").set_permission(identifier: "user_id", permission_values: {"read" => true})
         expect(user.workspace(workspace_name).file("foo/hoge.txt").read).to eq "0987654321"
       end
     end
