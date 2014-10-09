@@ -145,7 +145,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
           end
 
           it "ディスク使用量は 4096 * 4 + 30 バイト" do
-            expect(root_node.disk_usage).to eq ((4096 * 4) + 30)
+            expect(root_node.metadata.disk_usage).to eq ((4096 * 4) + 30)
           end
           it "直下のファイル数は 1" do
             expect(root_node.directory_file_count).to eq 1
@@ -160,7 +160,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
           end
 
           it "ディスク使用量は 4096 * 3 + 30 バイト" do
-            expect(dir.disk_usage).to eq ((4096 * 3) + 30)
+            expect(dir.metadata.disk_usage).to eq ((4096 * 3) + 30)
           end
           it "直下のファイル数は 2" do
             expect(dir.directory_file_count).to eq 2
@@ -175,7 +175,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
           end
 
           it "ディスク使用量は 4096 + 10 バイト" do
-            expect(dir.disk_usage).to eq (4096 + 10)
+            expect(dir.metadata.disk_usage).to eq (4096 + 10)
           end
           it "直下のファイル数は 1" do
             expect(dir.directory_file_count).to eq 1
@@ -190,7 +190,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
           end
 
           it "ディスク使用量は 4096 + 20 バイト" do
-            expect(dir.disk_usage).to eq (4096 + 20)
+            expect(dir.metadata.disk_usage).to eq (4096 + 20)
           end
           it "直下のファイル数は 1" do
             expect(dir.directory_file_count).to eq 1

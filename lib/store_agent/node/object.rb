@@ -83,14 +83,6 @@ module StoreAgent
         }
       end
 
-      def disk_usage
-        metadata.disk_usage
-      end
-
-      def disk_usage=(usage)
-        metadata.disk_usage=(usage)
-      end
-
       def root?
         @path == "/"
       end

@@ -21,7 +21,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
 
     it "ルートディレクトリの使用容量は 4096 バイト" do
-      expect(@root_node.disk_usage).to eq 4096
+      expect(@root_node.metadata.disk_usage).to eq 4096
     end
   end
 
@@ -42,7 +42,7 @@ RSpec.describe StoreAgent::Node::Metadata do
 
     context "ルートディレクトリ" do
       it "ディスク使用量は (4096 * 3) バイト" do
-        expect(@root_node.disk_usage).to eq (4096 * 3)
+        expect(@root_node.metadata.disk_usage).to eq (4096 * 3)
       end
       it "直下のファイル数は 1" do
         expect(@root_node.directory_file_count).to eq 1
@@ -53,7 +53,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
     context "中間ディレクトリ" do
       it "ディスク使用量は (4096 * 2) バイト" do
-        expect(@dir_1.disk_usage).to eq (4096 * 2)
+        expect(@dir_1.metadata.disk_usage).to eq (4096 * 2)
       end
       it "直下のファイル数は 1" do
         expect(@dir_1.directory_file_count).to eq 1
@@ -64,7 +64,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
     context "最下層のディレクトリ" do
       it "ディスク使用量は 4096 バイト" do
-        expect(@dir_2.disk_usage).to eq 4096
+        expect(@dir_2.metadata.disk_usage).to eq 4096
       end
       it "直下のファイル数は 0" do
         expect(@dir_2.directory_file_count).to eq 0
@@ -92,7 +92,7 @@ RSpec.describe StoreAgent::Node::Metadata do
 
     context "ルートディレクトリ" do
       it "ディスク使用量は (4096 * 2) + 10 バイト" do
-        expect(@root_node.disk_usage).to eq ((4096 * 2) + 10)
+        expect(@root_node.metadata.disk_usage).to eq ((4096 * 2) + 10)
       end
       it "直下のファイル数は 1" do
         expect(@root_node.directory_file_count).to eq 1
@@ -103,7 +103,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
     context "ディレクトリ" do
       it "ディスク使用量は 4096 + 10 バイト" do
-        expect(@dir.disk_usage).to eq (4096 + 10)
+        expect(@dir.metadata.disk_usage).to eq (4096 + 10)
       end
       it "直下のファイル数は 1" do
         expect(@dir.directory_file_count).to eq 1
@@ -114,7 +114,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
     context "ファイル" do
       it "ディスク使用量は 10 バイト" do
-        expect(@file.disk_usage).to eq 10
+        expect(@file.metadata.disk_usage).to eq 10
       end
       it "ディレクトリではないので、配下のファイルは存在しない" do
         expect do
@@ -145,7 +145,7 @@ RSpec.describe StoreAgent::Node::Metadata do
 
     context "ルートディレクトリ" do
       it "ディスク使用量は (4096 * 2) + 7 バイト" do
-        expect(@root_node.disk_usage).to eq ((4096 * 2) + 7)
+        expect(@root_node.metadata.disk_usage).to eq ((4096 * 2) + 7)
       end
       it "直下のファイル数は 1" do
         expect(@root_node.directory_file_count).to eq 1
@@ -156,7 +156,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
     context "ディレクトリ" do
       it "ディスク使用量は 4096 + 7 バイト" do
-        expect(@dir.disk_usage).to eq (4096 + 7)
+        expect(@dir.metadata.disk_usage).to eq (4096 + 7)
       end
       it "直下のファイル数は 1" do
         expect(@dir.directory_file_count).to eq 1
@@ -167,7 +167,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
     context "ファイル" do
       it "ディスク使用量は 7 バイト" do
-        expect(@file.disk_usage).to eq 7
+        expect(@file.metadata.disk_usage).to eq 7
       end
       it "ディレクトリではないので、配下のファイルは存在しない" do
         expect do
@@ -198,7 +198,7 @@ RSpec.describe StoreAgent::Node::Metadata do
 
     context "ルートディレクトリ" do
       it "ディスク使用量は (4096 * 2) + 10 バイト" do
-        expect(@root_node.disk_usage).to eq ((4096 * 2) + 10)
+        expect(@root_node.metadata.disk_usage).to eq ((4096 * 2) + 10)
       end
       it "直下のファイル数は 1" do
         expect(@root_node.directory_file_count).to eq 1
@@ -209,7 +209,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
     context "ディレクトリ" do
       it "ディスク使用量は 4096 + 10 バイト" do
-        expect(@dir.disk_usage).to eq (4096 + 10)
+        expect(@dir.metadata.disk_usage).to eq (4096 + 10)
       end
       it "直下のファイル数は 1" do
         expect(@dir.directory_file_count).to eq 1
@@ -221,7 +221,7 @@ RSpec.describe StoreAgent::Node::Metadata do
         file = owner.workspace(workspace_name).file("foo/foobarhoge.txt").create("body" => "0987654321")
         file.body = ""
         file.delete
-        expect(@dir.disk_usage).to eq (4096 + 10)
+        expect(@dir.metadata.disk_usage).to eq (4096 + 10)
       end
     end
   end
@@ -243,7 +243,7 @@ RSpec.describe StoreAgent::Node::Metadata do
 
     context "ルートディレクトリ" do
       it "ディスク使用量は 4096 * 2 バイト" do
-        expect(@root_node.disk_usage).to eq (4096 * 2)
+        expect(@root_node.metadata.disk_usage).to eq (4096 * 2)
       end
       it "直下のファイル数は 1" do
         expect(@root_node.directory_file_count).to eq 1
@@ -254,7 +254,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
     context "ディレクトリ" do
       it "ディスク使用量は 4096 バイト" do
-        expect(@dir.disk_usage).to eq 4096
+        expect(@dir.metadata.disk_usage).to eq 4096
       end
       it "直下のファイル数は 0" do
         expect(@dir.directory_file_count).to eq 0
@@ -284,7 +284,7 @@ RSpec.describe StoreAgent::Node::Metadata do
 
     context "ルートディレクトリ" do
       it "ディスク使用量は 4096 * 2 バイト" do
-        expect(@root_node.disk_usage).to eq (4096 * 2)
+        expect(@root_node.metadata.disk_usage).to eq (4096 * 2)
       end
       it "直下のファイル数は 1" do
         expect(@root_node.directory_file_count).to eq 1
@@ -295,7 +295,7 @@ RSpec.describe StoreAgent::Node::Metadata do
     end
     context "ディレクトリ" do
       it "ディスク使用量は 4096 バイト" do
-        expect(@dir.disk_usage).to eq 4096
+        expect(@dir.metadata.disk_usage).to eq 4096
       end
       it "直下のファイル数は 0" do
         expect(@dir.directory_file_count).to eq 0
