@@ -10,8 +10,10 @@ module StoreAgent
         super
       end
 
-      def read(*)
-        be_present!
+      def read(*, revision: nil)
+        if revision.nil?
+          be_present!
+        end
         super
       end
 

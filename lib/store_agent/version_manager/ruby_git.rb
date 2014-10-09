@@ -34,18 +34,26 @@ module StoreAgent
         raise e
       end
 
-      def revisions(path = ".")
-        logs(path).map(&:objectish)
+      def show_directory(path: ".", revision: "HEAD")
+        repository.gtree("#{revision}:#{relative_path(path)}").children.keys
       end
 
-      def logs(path)
-        repository.log.path(path)
+      def show_file(path: ".", revision: "HEAD")
+        repository.gblob("#{revision}:#{relative_path(path)}").contents
+      end
+
+      def revisions(path = ".")
+        logs(path).map(&:objectish)
       end
 
       private
 
       def repository
         @repository ||= Git.open(workspace.namespace_dirname)
+      end
+
+      def logs(path)
+        repository.log.path(path)
       end
     end
   end

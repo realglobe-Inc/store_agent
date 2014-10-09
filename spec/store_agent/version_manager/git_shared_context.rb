@@ -116,4 +116,28 @@ RSpec.shared_context "git" do
       end.to raise_error(StoreAgent::InvalidPathError)
     end
   end
+  context "過去のオブジェクトの取得" do
+    before do
+      if !workspace.exists?
+        workspace.create
+      end
+      if !(dir = workspace.directory("revision")).exists?
+        dir.create
+      end
+    end
+
+    it "適切なバージョンを指定すれば、変更前のディレクトリのファイル一覧が取得できる" do
+      workspace.directory("revision/delete").create
+      workspace.directory("revision/delete/tmp").create
+      revision = workspace.version_manager.revisions.first
+      workspace.directory("revision/delete/tmp").delete
+      expect(workspace.directory("revision/delete").read(revision: revision)).to eq ["tmp"]
+    end
+    it "適切なバージョンを指定すれば、変更前のファイルが取得できる" do
+      workspace.file("revision/update.txt").create("hoge")
+      revision = workspace.version_manager.revisions.first
+      workspace.file("revision/update.txt").update("fuga")
+      expect(workspace.file("revision/update.txt").read(revision: revision)).to eq "hoge"
+    end
+  end
 end

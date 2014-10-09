@@ -106,6 +106,12 @@ StoreAgent.configure do |c|
 end
 ```
 
+過去のバージョンのファイルやディレクトリを読み込む場合は以下のように実行する。  
+
+```ruby
+file_or_directory.read(revision: "version")
+```
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/store_agent/fork )

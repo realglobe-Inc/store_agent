@@ -22,5 +22,11 @@ module StoreAgent
         end
       end
     end
+
+    private
+
+    def relative_path(path)
+      path[(workspace.namespace_dirname.length + 1)..-1]
+    end
   end
 end

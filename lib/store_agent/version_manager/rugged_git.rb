@@ -39,16 +39,16 @@ module StoreAgent
         raise e
       end
 
-      def revisions(path = "*")
-        logs(path).map(&:oid)
+      def show_directory(path: "", revision: nil)
+        lookup_path(path: path, revision: revision).map{|t| t[:name]}
       end
 
-      def logs(path)
-        walker.sorting(Rugged::SORT_DATE)
-        walker.push(repository.head.target)
-        walker.select do |commit|
-          commit.parents.size == 1 && commit.diff(paths: [path]).size > 0
-        end
+      def show_file(path: "", revision: nil)
+        lookup_path(path: path, revision: revision).content
+      end
+
+      def revisions(path = "*")
+        logs(path).map(&:oid)
       end
 
       private
@@ -61,6 +61,21 @@ module StoreAgent
         @walker ||= Rugged::Walker.new(repository)
       end
 
+      def logs(path)
+        walker.sorting(Rugged::SORT_DATE)
+        walker.push(repository.head.target)
+        walker.select do |commit|
+          commit.parents.size == 1 && commit.diff(paths: [path]).size > 0
+        end
+      end
+
+      def lookup_path(path: "", revision: nil)
+        paths = relative_path(path).split("/")
+        paths.inject(repository.lookup(revision).tree) do |tree, path|
+          repository.lookup(tree.find{|t| t[:name] == path}[:oid])
+        end
+      end
+
       def commit(message)
         options = {
           tree: repository.index.write_tree(repository),
@@ -70,10 +85,6 @@ module StoreAgent
         }
         Rugged::Commit.create(repository, options)
         repository.index.write
-      end
-
-      def relative_path(path)
-        path[(workspace.namespace_dirname.length + 1)..-1]
       end
     end
   end

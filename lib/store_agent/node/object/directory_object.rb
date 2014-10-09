@@ -16,9 +16,13 @@ module StoreAgent
       end
 
       # TODO
-      def read
+      def read(revision: nil)
         super do
-          child_filenames
+          if revision.nil?
+            child_filenames
+          else
+            workspace.version_manager.show_directory(path: storage_object_path, revision: revision) - StoreAgent.reserved_filenames
+          end
         end
       end
 

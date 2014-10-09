@@ -10,10 +10,14 @@ module StoreAgent
         end
       end
 
-      def read
+      def read(revision: nil)
         super do
-          open(storage_object_path) do |f|
-            f.read
+          if revision.nil?
+            open(storage_object_path) do |f|
+              f.read
+            end
+          else
+            workspace.version_manager.show_file(path: storage_object_path, revision: revision)
           end
         end
       end
