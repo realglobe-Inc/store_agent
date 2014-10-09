@@ -39,11 +39,7 @@ module StoreAgent
         raise e
       end
 
-      def last_commit_id
-        logs("*").first.oid
-      end
-
-      def revisions(path)
+      def revisions(path = "*")
         logs(path).map(&:oid)
       end
 
