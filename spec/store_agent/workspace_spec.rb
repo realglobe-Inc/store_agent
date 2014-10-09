@@ -13,12 +13,12 @@ RSpec.describe StoreAgent::Workspace do
     end
     it "パラメータに namespace が無い Workspace は作成できない" do
       expect do
-        StoreAgent::Workspace.new(user: user, foo: :bar)
+        StoreAgent::Workspace.new(current_user: user, foo: :bar)
       end.to raise_error
     end
     it "namespace パラメータに / が入っている Workspace は作成できない" do
       expect do
-        StoreAgent::Workspace.new(user: user, namespace: "foo/bar")
+        StoreAgent::Workspace.new(current_user: user, namespace: "foo/bar")
       end.to raise_error
     end
     it "User を紐づけないと Workspace を作成できない" do
@@ -27,7 +27,7 @@ RSpec.describe StoreAgent::Workspace do
       end.to raise_error
     end
     it "namespace が正しく、User が紐づいていれば Workspace を作成できる" do
-      expect(StoreAgent::Workspace.new(user: user, namespace: "bar").namespace).to eq "bar"
+      expect(StoreAgent::Workspace.new(current_user: user, namespace: "bar").namespace).to eq "bar"
     end
   end
 

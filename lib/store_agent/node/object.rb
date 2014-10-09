@@ -15,6 +15,18 @@ module StoreAgent
         @path = sanitize_path(path)
       end
 
+      def metadata
+        @metadata ||= StoreAgent::Node::Metadata.new(object: self)
+      end
+
+      def permission
+        @permission ||= StoreAgent::Node::Permission.new(object: self)
+      end
+
+      def current_user
+        @workspace.current_user
+      end
+
       def create(*)
         workspace.version_manager.transaction("created #{path}") do
           yield
@@ -44,10 +56,6 @@ module StoreAgent
         true
       end
 
-      def user
-        @workspace.user
-      end
-
       def parent_directory
         if !root?
           @parent_directory ||= StoreAgent::Node::DirectoryObject.new(workspace: @workspace, path: File.dirname(@path))
@@ -62,19 +70,11 @@ module StoreAgent
         File.ftype(storage_object_path)
       end
 
-      def metadata
-        @metadata ||= StoreAgent::Node::Metadata.new(object: self)
-      end
-
-      def permission
-        @permission ||= StoreAgent::Node::Permission.new(object: self)
-      end
-
       def initial_metadata
         {
           "size" => StoreAgent::Node::Metadata.datasize_format(bytesize),
           "bytes" => bytesize,
-          "owner" => user.identifier,
+          "owner" => current_user.identifier,
           "is_dir" => directory?,
           "created_at" => updated_at.to_s,
           "updated_at" => updated_at.to_s,
@@ -98,7 +98,7 @@ module StoreAgent
       end
 
       def owner?
-        metadata["owner"] == user.identifier
+        metadata["owner"] == current_user.identifier
       end
 
       def storage_object_path

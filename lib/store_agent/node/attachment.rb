@@ -14,6 +14,10 @@ module StoreAgent
         @data ||= (load || initial_data)
       end
 
+      def current_user
+        @object.current_user
+      end
+
       def create
         dirname = File.dirname(file_path)
         if !File.exists?(dirname)

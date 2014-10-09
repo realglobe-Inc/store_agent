@@ -2,10 +2,10 @@ module StoreAgent
   module Node
     class Permission < Attachment
       def allow?(permission_name)
-        if object.user.super_user?
+        if current_user.super_user?
           return data["superuser"][permission_name]
         end
-        object.user.identifiers.reverse.each do |identifier|
+        current_user.identifiers.reverse.each do |identifier|
           if (user_permission = data["users"][identifier]) && user_permission.key?(permission_name)
             return user_permission[permission_name]
           end
@@ -49,8 +49,8 @@ module StoreAgent
 
       def initial_data
         user_permission = {}
-        if !(object.user.super_user? || object.user.guest?)
-          user_permission[@object.user.identifier] = StoreAgent.config.default_owner_permission
+        if !(current_user.super_user? || current_user.guest?)
+          user_permission[current_user.identifier] = StoreAgent.config.default_owner_permission
         end
         {
           "superuser" => StoreAgent.config.super_user_permission,

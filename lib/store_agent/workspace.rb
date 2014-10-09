@@ -2,12 +2,12 @@ module StoreAgent
   class Workspace
     include StoreAgent::Validator
 
-    attr_reader :user, :namespace, :version_manager
+    attr_reader :current_user, :namespace, :version_manager
 
-    def initialize(user: nil, namespace: nil)
-      @user = user
+    def initialize(current_user: nil, namespace: nil)
+      @current_user = current_user
       @namespace = namespace
-      validates_to_be_not_nil_value!(:user)
+      validates_to_be_not_nil_value!(:current_user)
       validates_to_be_string_or_symbol!(@namespace)
       validates_to_be_excluded_slash!(@namespace)
       @version_manager = StoreAgent.config.version_manager.new(workspace: self)

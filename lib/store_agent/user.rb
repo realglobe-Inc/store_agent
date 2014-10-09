@@ -30,7 +30,7 @@ module StoreAgent
     end
 
     def workspace(namespace)
-      StoreAgent::Workspace.new(user: self, namespace: namespace)
+      StoreAgent::Workspace.new(current_user: self, namespace: namespace)
     end
   end
 
