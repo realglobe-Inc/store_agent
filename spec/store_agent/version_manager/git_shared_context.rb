@@ -81,7 +81,7 @@ RSpec.shared_context "git" do
       expect(scoped_commit_id).to eq workspace.version_manager.revisions.first
     end
   end
-  context "予約されているファイル/ディレクトリ名は作成できない" do
+  context "予約されているファイル/ディレクトリ名は操作できない" do
     let :workspace do
       user.workspace("#{workspace_name}_reserved_name")
     end
@@ -91,29 +91,52 @@ RSpec.shared_context "git" do
       end
     end
 
-    it "名前が .git のディレクトリ" do
-      begin
-        workspace.directory(".git").create
-      rescue
+    context "create できない" do
+      it "名前が .git のディレクトリ" do
+        begin
+          workspace.directory(".git").create
+        rescue
+        end
+        expect(workspace.directory(".git").exists?).to be false
       end
-      expect(workspace.directory(".git").exists?).to be false
-    end
-    it "名前が .git のファイル" do
-      begin
-        workspace.file(".git").create
-      rescue
+      it "名前が .git のファイル" do
+        begin
+          workspace.file(".git").create
+        rescue
+        end
+        expect(workspace.file(".git").exists?).to be false
       end
-      expect(workspace.file(".git").exists?).to be false
+      it "名前が .keep のディレクトリ" do
+        expect do
+          workspace.directory(".keep").create
+        end.to raise_error(StoreAgent::InvalidPathError)
+      end
+      it "名前が .keep のファイル" do
+        expect do
+          workspace.file(".keep").create
+        end.to raise_error(StoreAgent::InvalidPathError)
+      end
     end
-    it "名前が .keep のディレクトリ" do
-      expect do
-        workspace.directory(".keep").create
-      end.to raise_error(StoreAgent::InvalidPathError)
+    context "read できない" do
+      it "名前が .git のディレクトリ" do
+        expect do
+          workspace.directory(".git").read
+        end.to raise_error(StoreAgent::InvalidPathError)
+      end
     end
-    it "名前が .keep のファイル" do
-      expect do
-        workspace.file(".keep").create
-      end.to raise_error(StoreAgent::InvalidPathError)
+    context "update できない" do
+      it "名前が .keep のファイル" do
+        expect do
+          workspace.file(".keep").update("keep it")
+        end.to raise_error(StoreAgent::InvalidPathError)
+      end
+    end
+    context "delete できない" do
+      it "名前が .git のディレクトリ" do
+        expect do
+          workspace.directory(".git").delete
+        end.to raise_error(StoreAgent::InvalidPathError)
+      end
     end
   end
   context "過去のオブジェクトの取得" do

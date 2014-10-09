@@ -11,18 +11,20 @@ module StoreAgent
       def create
         super do
           FileUtils.mkdir(storage_object_path)
-          workspace.version_manager.add("#{storage_object_path}/.keep")
+          workspace.version_manager.add("#{storage_object_path}.keep")
         end
       end
 
       # TODO
       def read(revision: nil)
         super do
-          if revision.nil?
-            child_filenames
-          else
-            workspace.version_manager.show_directory(path: storage_object_path, revision: revision) - StoreAgent.reserved_filenames
-          end
+          filenames =
+            if revision.nil?
+              current_children_filenames
+            else
+              workspace.version_manager.read(path: storage_object_path, revision: revision)
+            end
+          filenames - StoreAgent.reserved_filenames
         end
       end
 
@@ -45,7 +47,7 @@ module StoreAgent
           else
             raise StoreAgent::PermissionDeniedError.new(errors: errors)
           end
-          workspace.version_manager.remove("#{storage_object_path}/.keep")
+          workspace.version_manager.remove("#{storage_object_path}.keep")
         end
       end
 
@@ -72,7 +74,7 @@ module StoreAgent
       end
 
       def children
-        child_filenames.map{|filename|
+        (current_children_filenames - StoreAgent.reserved_filenames).map{|filename|
           find_object(filename)
         }
       end
@@ -111,9 +113,9 @@ module StoreAgent
         "#{@path}#{sanitize_path(path)}"
       end
 
-      def child_filenames
+      def current_children_filenames
         FileUtils.cd(storage_object_path) do
-          return (Dir.glob("*", File::FNM_DOTMATCH) - StoreAgent.reserved_filenames)
+          return Dir.glob("*", File::FNM_DOTMATCH)
         end
       end
     end

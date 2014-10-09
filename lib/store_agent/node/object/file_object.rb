@@ -17,7 +17,7 @@ module StoreAgent
               f.read
             end
           else
-            workspace.version_manager.show_file(path: storage_object_path, revision: revision)
+            workspace.version_manager.read(path: storage_object_path, revision: revision)
           end
         end
       end

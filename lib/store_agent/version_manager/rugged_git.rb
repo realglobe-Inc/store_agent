@@ -39,12 +39,12 @@ module StoreAgent
         raise e
       end
 
-      def show_directory(path: "", revision: nil)
-        lookup_path(path: path, revision: revision).map{|t| t[:name]}
-      end
-
-      def show_file(path: "", revision: nil)
-        lookup_path(path: path, revision: revision).content
+      def read(path: "", revision: nil)
+        if path.end_with?("/")
+          read_directory(path: path, revision: revision)
+        else
+          read_file(path: path, revision: revision)
+        end
       end
 
       def revisions(path = "*")
@@ -74,6 +74,14 @@ module StoreAgent
         paths.inject(repository.lookup(revision).tree) do |tree, path|
           repository.lookup(tree.find{|t| t[:name] == path}[:oid])
         end
+      end
+
+      def read_directory(path: "", revision: nil)
+        lookup_path(path: path, revision: revision).map{|t| t[:name]}
+      end
+
+      def read_file(path: "", revision: nil)
+        lookup_path(path: path, revision: revision).content
       end
 
       def commit(message)

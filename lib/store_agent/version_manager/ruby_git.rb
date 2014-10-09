@@ -34,12 +34,12 @@ module StoreAgent
         raise e
       end
 
-      def show_directory(path: ".", revision: "HEAD")
-        repository.gtree("#{revision}:#{relative_path(path)}").children.keys
-      end
-
-      def show_file(path: ".", revision: "HEAD")
-        repository.gblob("#{revision}:#{relative_path(path)}").contents
+      def read(path: "", revision: nil)
+        if path.end_with?("/")
+          read_directory(path: path, revision: revision)
+        else
+          read_file(path: path, revision: revision)
+        end
       end
 
       def revisions(path = ".")
@@ -54,6 +54,14 @@ module StoreAgent
 
       def logs(path)
         repository.log.path(path)
+      end
+
+      def read_directory(path: ".", revision: "HEAD")
+        repository.gtree("#{revision}:#{relative_path(path)}").children.keys
+      end
+
+      def read_file(path: ".", revision: "HEAD")
+        repository.gblob("#{revision}:#{relative_path(path)}").contents
       end
     end
   end

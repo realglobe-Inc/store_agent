@@ -14,17 +14,20 @@ module StoreAgent
         if revision.nil?
           be_present!
         end
+        be_not_reserved!
         super
       end
 
       def update(*)
         be_present!
+        be_not_reserved!
         super
       end
 
       def delete(*)
         be_present!
         be_not_root!
+        be_not_reserved!
         super
       end
 

@@ -13,7 +13,7 @@ module StoreAgent
       @workspace = workspace
     end
 
-    %w(init add remove transaction).each do |method_name|
+    %w(init add remove transaction read revisions).each do |method_name|
       define_method method_name do |*, &block|
         FileUtils.cd(workspace.namespace_dirname) do
           if block

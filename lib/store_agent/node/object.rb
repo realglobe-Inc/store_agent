@@ -102,7 +102,7 @@ module StoreAgent
       end
 
       def storage_object_path
-        File.absolute_path("#{@workspace.storage_dirname}#{@path}")
+        "#{@workspace.storage_dirname}#{@path}"
       end
 
       def bytesize
