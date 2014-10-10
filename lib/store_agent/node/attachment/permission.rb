@@ -4,7 +4,7 @@ module StoreAgent
       def allow?(permission_name)
         case
         when current_user.super_user?
-          data["superuser"][permission_name]
+          true
         when identifier = permission_defined_user_identifier(permission_name)
           data["users"][identifier][permission_name]
         else
@@ -52,7 +52,6 @@ module StoreAgent
           user_permission[current_user.identifier] = StoreAgent.config.default_owner_permission
         end
         {
-          "superuser" => StoreAgent.config.super_user_permission,
           "users" => user_permission,
           "guest" => StoreAgent.config.default_guest_permission
         }

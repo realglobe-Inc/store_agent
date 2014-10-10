@@ -27,7 +27,6 @@ module StoreAgent
     attr_accessor :lock_timeout
     attr_accessor :default_directory_bytesize_limit
     attr_accessor :json_indent_level
-    attr_accessor :super_user_permission
     attr_accessor :default_owner_permission
     attr_accessor :default_guest_permission
 
@@ -44,11 +43,6 @@ module StoreAgent
       @reserved_filenames = %w(. ..)
       @lock_timeout = 0.1
       @default_directory_bytesize_limit = 2 ** 30
-      @super_user_permission = {
-        "read" => true,
-        "write" => true,
-        "execute" => true
-      }
       @default_owner_permission = {
         "read" => true,
         "write" => true,
