@@ -31,6 +31,24 @@ module StoreAgent
         super
       end
 
+      def get_metadata(*)
+        be_present!
+        be_not_reserved!
+        super
+      end
+
+      def get_permissions(*)
+        be_present!
+        be_not_reserved!
+        super
+      end
+
+      def chown(*)
+        be_present!
+        be_not_reserved!
+        super
+      end
+
       def set_permission(*)
         be_present!
         be_not_reserved!

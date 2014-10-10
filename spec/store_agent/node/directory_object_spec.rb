@@ -13,7 +13,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
 
   context "初期化時に path の末尾に / を追加する" do
     let :workspace_name do
-      "test_dir_workspace_01"
+      "test_dir_workspace_initialize"
     end
     let :directory do
       workspace.directory(@path)
@@ -43,7 +43,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
 
   context "ディレクトリ作成のテスト" do
     let :workspace_name do
-      "test_dir_workspace_02"
+      "test_dir_workspace_create"
     end
     before do
       dir = workspace.directory("/foo")
@@ -87,7 +87,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
 
   context "ディレクトリ削除のテスト" do
     let :workspace_name do
-      "test_dir_workspace_03"
+      "test_dir_workspace_delete"
     end
     before do
       dir = workspace.directory("/delete_test")
@@ -113,17 +113,17 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
         expect(workspace.directory("/delete_test").exists?).to be false
       end
       it "メタデータ側のディレクトリは削除される" do
-        metadata_dir_path = "/tmp/store_agent/test_dir_workspace_03/metadata/delete_test"
+        metadata_dir_path = "/tmp/store_agent/test_dir_workspace_delete/metadata/delete_test"
         expect(File.exists?(metadata_dir_path)).to be false
       end
       it "パーミッション側のディレクトリは削除される" do
-        permission_dir_path = "/tmp/store_agent/test_dir_workspace_03/permission/delete_test"
+        permission_dir_path = "/tmp/store_agent/test_dir_workspace_delete/permission/delete_test"
         expect(File.exists?(permission_dir_path)).to be false
       end
     end
     context "配下に削除権限が無いオブジェクトがある場合" do
       let :workspace_name do
-        "test_dir_workspace_03_2"
+        "test_dir_workspace_delete_with_no_permission"
       end
       before do
         workspace.directory("/delete_test/bar").create
@@ -205,11 +205,11 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
           expect(workspace.directory("/delete_test/foo").exists?).to be false
         end
         it "メタデータ側のディレクトリは削除される" do
-          metadata_dir_path = "/tmp/store_agent/test_dir_workspace_03_2/metadata/delete_test/foo"
+          metadata_dir_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/metadata/delete_test/foo"
           expect(File.exists?(metadata_dir_path)).to be false
         end
         it "パーミッション側のディレクトリは削除される" do
-          permission_dir_path = "/tmp/store_agent/test_dir_workspace_03_2/permission/delete_test/foo"
+          permission_dir_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/permission/delete_test/foo"
           expect(File.exists?(permission_dir_path)).to be false
         end
       end
@@ -219,14 +219,14 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
           expect(workspace.file("/delete_test/bar/hoge.txt").exists?).to be true
         end
         it "ファイルと親ディレクトリのメタデータは削除されない" do
-          dir_metadata_path = "/tmp/store_agent/test_dir_workspace_03_2/metadata/delete_test/bar/.meta"
-          file_metadata_path = "/tmp/store_agent/test_dir_workspace_03_2/metadata/delete_test/bar/hoge.txt.meta"
+          dir_metadata_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/metadata/delete_test/bar/.meta"
+          file_metadata_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/metadata/delete_test/bar/hoge.txt.meta"
           expect(File.exists?(dir_metadata_path)).to be true
           expect(File.exists?(file_metadata_path)).to be true
         end
         it "ファイルと親ディレクトリのパーミッションは削除されない" do
-          dir_permission_path = "/tmp/store_agent/test_dir_workspace_03_2/permission/delete_test/bar/.perm"
-          file_permission_path = "/tmp/store_agent/test_dir_workspace_03_2/permission/delete_test/bar/hoge.txt.perm"
+          dir_permission_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/permission/delete_test/bar/.perm"
+          file_permission_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/permission/delete_test/bar/hoge.txt.perm"
           expect(File.exists?(dir_permission_path)).to be true
           expect(File.exists?(file_permission_path)).to be true
         end
@@ -237,14 +237,14 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
           expect(workspace.file("/delete_test/foobar/fuga.txt").exists?).to be true
         end
         it "ディレクトリと配下ファイルのメタデータは削除されない" do
-          dir_metadata_path = "/tmp/store_agent/test_dir_workspace_03_2/metadata/delete_test/foobar/.meta"
-          file_metadata_path = "/tmp/store_agent/test_dir_workspace_03_2/metadata/delete_test/foobar/fuga.txt.meta"
+          dir_metadata_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/metadata/delete_test/foobar/.meta"
+          file_metadata_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/metadata/delete_test/foobar/fuga.txt.meta"
           expect(File.exists?(dir_metadata_path)).to be true
           expect(File.exists?(file_metadata_path)).to be true
         end
         it "ディレクトリと配下ファイルのパーミッションは削除されない" do
-          dir_permission_path = "/tmp/store_agent/test_dir_workspace_03_2/permission/delete_test/foobar/.perm"
-          file_permission_path = "/tmp/store_agent/test_dir_workspace_03_2/permission/delete_test/foobar/fuga.txt.perm"
+          dir_permission_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/permission/delete_test/foobar/.perm"
+          file_permission_path = "/tmp/store_agent/test_dir_workspace_delete_with_no_permission/permission/delete_test/foobar/fuga.txt.perm"
           expect(File.exists?(dir_permission_path)).to be true
           expect(File.exists?(file_permission_path)).to be true
         end
@@ -252,9 +252,60 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
     end
   end
 
+  context "メタデータ取得のテスト" do
+    let :workspace_name do
+      "test_dir_workspace_get_metadata"
+    end
+    it "get_metadata でメタデータをハッシュ形式で取得できる" do
+      expect(workspace.directory("/").get_metadata.class).to eq Hash
+    end
+  end
+
+  context "パーミッション情報取得のテスト" do
+    let :workspace_name do
+      "test_dir_workspace_get_permissions"
+    end
+    it "get_permissions でパーミッション情報をハッシュ形式で取得できる" do
+      expect(workspace.directory("/").get_permissions.class).to eq Hash
+    end
+  end
+
+  context "オーナー変更のテスト" do
+    let :workspace_name do
+      "test_dir_workspace_chown"
+    end
+    before do
+      if !(dir = workspace.directory("chown")).exists?
+        dir.create
+        workspace.file("chown/hoge.txt").create
+        workspace.directory("chown_r").create
+        workspace.file("chown_r/fuga.txt").create
+      end
+    end
+    it "userは権限がないので、オーナー変更できない" do
+      expect do
+        workspace.directory("chown").chown(identifier: "hoge")
+      end.to raise_error
+    end
+    context "superuserはオーナー変更できる" do
+      it "recursive オプションが無いと、指定したディレクトリのみ変更される" do
+        superuser = StoreAgent::Superuser.new
+        superuser.workspace(workspace_name).directory("chown").chown(identifier: "hoge")
+        expect(workspace.directory("chown").metadata["owner"]).to eq "hoge"
+        expect(workspace.file("chown/hoge.txt").metadata["owner"]).to eq "foo"
+      end
+      it "recursive: true にすると、指定したディレクトリ以下の全ファイルが変更される" do
+        superuser = StoreAgent::Superuser.new
+        superuser.workspace(workspace_name).directory("chown").chown(identifier: "hoge", recursive: true)
+        expect(workspace.directory("chown").metadata["owner"]).to eq "hoge"
+        expect(workspace.file("chown/hoge.txt").metadata["owner"]).to eq "hoge"
+      end
+    end
+  end
+
   context "配下オブジェクトを取得するテスト" do
     let :workspace_name do
-      "test_dir_workspace_04"
+      "test_dir_workspace_delete"
     end
     let :dir do
       workspace.directory("search_children")

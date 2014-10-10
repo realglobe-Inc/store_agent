@@ -54,14 +54,32 @@ module StoreAgent
         true
       end
 
-      def set_permission(identifier: nil, permission_values: {}, recursive: nil)
+      def get_metadata(*)
+        yield
+        metadata.data
+      end
+
+      def get_permissions(*)
+        yield
+        permission.data
+      end
+
+      def chown(*, identifier: nil, **_)
+        workspace.version_manager.transaction("change_owner #{path}") do
+          yield
+          metadata["owner"] = identifier
+          metadata.save
+        end
+      end
+
+      def set_permission(identifier: nil, permission_values: {}, **_)
         workspace.version_manager.transaction("add_permission #{path}") do
           permission.set!(identifier: identifier, permission_values: permission_values)
           yield
         end
       end
 
-      def unset_permission(identifier: nil, permission_names: [], recursive: nil)
+      def unset_permission(identifier: nil, permission_names: [], **_)
         workspace.version_manager.transaction("remove_permission #{path}") do
           permission.unset!(identifier: identifier, permission_names: permission_names)
           yield

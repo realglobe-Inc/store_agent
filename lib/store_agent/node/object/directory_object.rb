@@ -46,6 +46,26 @@ module StoreAgent
         end
       end
 
+      def get_metadata(*)
+        super do
+        end
+      end
+
+      def get_permissions(*)
+        super do
+        end
+      end
+
+      def chown(*, identifier: nil, recursive: false)
+        super do
+          if recursive
+            success, errors = call_for_children do |child|
+              child.chown(identifier: identifier, recursive: recursive)
+            end
+          end
+        end
+      end
+
       def set_permission(identifier: nil, permission_values: {}, recursive: false)
         super do
           if recursive

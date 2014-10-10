@@ -23,6 +23,21 @@ module StoreAgent
         super
       end
 
+      def get_metadata(*)
+        authorize!("read")
+        super
+      end
+
+      def get_permissions(*)
+        authorize!("read")
+        super
+      end
+
+      def chown(*)
+        authorize!("chown")
+        super
+      end
+
       def set_permission(*)
         authorize!("write")
         super

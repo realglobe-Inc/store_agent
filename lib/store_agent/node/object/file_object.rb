@@ -40,6 +40,21 @@ module StoreAgent
         end
       end
 
+      def get_metadata(*)
+        super do
+        end
+      end
+
+      def get_permissions(*)
+        super do
+        end
+      end
+
+      def chown(*)
+        super do
+        end
+      end
+
       def set_permission(*)
         super do
         end

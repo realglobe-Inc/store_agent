@@ -25,6 +25,24 @@ module StoreAgent
         end
       end
 
+      def get_metadata(*)
+        lock!(lock_mode: File::LOCK_SH, recursive: true) do
+          super
+        end
+      end
+
+      def get_permissions(*)
+        lock!(lock_mode: File::LOCK_SH, recursive: true) do
+          super
+        end
+      end
+
+      def chown(*)
+        lock!(lock_mode: File::LOCK_EX, recursive: false) do
+          super
+        end
+      end
+
       # TODO recursive_to_root, recursive_to_leaf
       # TODO lock_shared recursive_to_root
       def set_permission(*)

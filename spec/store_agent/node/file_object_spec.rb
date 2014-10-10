@@ -150,6 +150,38 @@ RSpec.describe StoreAgent::Node::FileObject do
     end
   end
 
+  context "メタデータ取得のテスト" do
+    it "get_metadata でメタデータをハッシュ形式で取得できる" do
+      workspace.file("get_metadata.txt").create
+      expect(workspace.file("get_metadata.txt").get_metadata.class).to eq Hash
+    end
+  end
+
+  context "パーミッション情報取得のテスト" do
+    it "get_permissions でパーミッション情報をハッシュ形式で取得できる" do
+      workspace.file("get_permissions.txt").create
+      expect(workspace.file("get_permissions.txt").get_permissions.class).to eq Hash
+    end
+  end
+
+  context "オーナー変更のテスト" do
+    before do
+      if !(file = workspace.file("chown.txt")).exists?
+        file.create
+      end
+    end
+    it "userは権限がないので、オーナー変更できない" do
+      expect do
+        workspace.file("chown.txt").chown(identifier: "hoge")
+      end.to raise_error
+    end
+    it "superuserはオーナー変更できる" do
+      superuser = StoreAgent::Superuser.new
+      superuser.workspace("test_file_workspace").file("chown.txt").chown(identifier: "hoge")
+      expect(workspace.file("chown.txt").metadata["owner"]).to eq "hoge"
+    end
+  end
+
   context "配下オブジェクトを取得しようとする" do
     let :file do
       workspace.file("search_children.txt")
