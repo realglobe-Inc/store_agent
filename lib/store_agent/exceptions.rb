@@ -13,12 +13,12 @@ module StoreAgent
 
     def to_s
       if @errors
-        "permission denied: user=#{@errors.first.object.user.identifier} " +
+        "permission denied: user=#{@errors.first.object.current_user.identifier} " +
         @errors.map do |e|
           "permission=#{e.permission} object=#{e.object.path}"
         end.join(", ")
       else
-        "permission denied: user=#{object.user.identifier} permission=#{permission} object=#{object.path}"
+        "permission denied: user=#{object.current_user.identifier} permission=#{permission} object=#{object.path}"
       end
     end
   end
