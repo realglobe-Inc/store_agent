@@ -188,4 +188,51 @@ RSpec.shared_context "git" do
       expect(workspace.version_manager.revisions.first).to_not eq revision
     end
   end
+  context "オブジェクトのコピー/移動", focus: true do
+    let :workspace do
+      user.workspace("#{workspace_name}_copy_and_move")
+    end
+    before do
+      if !workspace.exists?
+        workspace.create
+        workspace.directory("copy_dir").create
+        workspace.directory("copy_file").create
+        workspace.directory("copy_file_dest").create
+        workspace.directory("move_dir").create
+        workspace.directory("move_file").create
+        workspace.directory("move_file_dest").create
+      end
+    end
+
+    it "ファイルのコピー" do
+      workspace.file("copy_file/src.txt").create("copy")
+      workspace.file("copy_file/src.txt").copy("copy_file_dest/dest.txt")
+      expect(workspace.file("copy_file/src.txt").read).to eq "copy"
+      expect(workspace.directory("copy_file").directory_file_count).to eq 1
+      expect(workspace.directory("copy_file_dest").directory_file_count).to eq 1
+    end
+    it "ファイルの移動" do
+      workspace.file("move_file/src.txt").create("move")
+      workspace.file("move_file/src.txt").move("move_file_dest/dest.txt")
+      expect(workspace.file("move_file_dest/dest.txt").read).to eq "move"
+      expect(workspace.directory("move_file").directory_file_count).to eq 0
+      expect(workspace.directory("move_file_dest").directory_file_count).to eq 1
+    end
+    it "ディレクトリのコピー" do
+      workspace.directory("copy_dir/src_dir").create
+      workspace.file("copy_dir/src_dir/foo.txt").create("copy")
+      workspace.directory("copy_dir/src_dir").copy("copy_dir/dest_dir")
+      expect(workspace.file("copy_dir/dest_dir/foo.txt").read).to eq "copy"
+      expect(workspace.directory("copy_dir/src_dir").directory_file_count).to eq 1
+      expect(workspace.directory("copy_dir/dest_dir").tree_file_count).to eq 1
+    end
+    it "ディレクトリの移動" do
+      workspace.directory("move_dir/src_dir").create
+      workspace.file("move_dir/src_dir/bar.txt").create("move")
+      workspace.directory("move_dir/src_dir").move("move_dir/dest_dir")
+      expect(workspace.file("move_dir/dest_dir/bar.txt").read).to eq "move"
+      expect(workspace.directory("move_dir/src_dir").exists?).to be false
+      expect(workspace.directory("move_dir/dest_dir").tree_file_count).to eq 1
+    end
+  end
 end

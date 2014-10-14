@@ -30,13 +30,22 @@ module StoreAgent
       end
 
       def transaction(message)
-        super do
+        if @transaction
           yield
+        else
+          begin
+            @transaction = true
+            super do
+              yield
+            end
+            commit(message)
+          rescue => e
+            repository.reset("HEAD", :hard)
+            raise e
+          ensure
+            @transaction = false
+          end
         end
-        commit(message)
-      rescue => e
-        repository.reset("HEAD", :hard)
-        raise e
       end
 
       def read(path: "", revision: nil)

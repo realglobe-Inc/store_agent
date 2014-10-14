@@ -211,4 +211,58 @@ RSpec.describe StoreAgent::Node::FileObject do
       expect(file.children).to eq []
     end
   end
+
+  context "ファイルのコピー" do
+    let :directory do
+      workspace.directory("copy")
+    end
+    let :file do
+      workspace.file("copy/src.txt")
+    end
+    let :dest_path do
+      "copy/dest.txt"
+    end
+    before do
+      if !directory.exists?
+        directory.create
+        file.create("copy")
+        workspace.file("copy/src.txt").copy(dest_path)
+      end
+    end
+
+    it "コピー先にファイルが作成される" do
+      expect(workspace.file(dest_path).read).to eq "copy"
+    end
+    it "メタデータが更新される" do
+      expect(workspace.directory("copy").directory_file_count).to eq 2
+    end
+  end
+
+  context "ファイルの移動" do
+    let :directory do
+      workspace.directory("move")
+    end
+    let :file do
+      workspace.file("move/src.txt")
+    end
+    let :dest_path do
+      "move_dest/dest.txt"
+    end
+    before do
+      if !directory.exists?
+        directory.create
+        workspace.directory("move_dest").create
+        file.create("move")
+        workspace.file("move/src.txt").move(dest_path)
+      end
+    end
+
+    it "移動先にファイルが作成される" do
+      expect(workspace.file(dest_path).read).to eq "move"
+    end
+    it "メタデータが更新される" do
+      expect(workspace.directory("move").directory_file_count).to eq 0
+      expect(workspace.directory("move_dest").directory_file_count).to eq 1
+    end
+  end
 end

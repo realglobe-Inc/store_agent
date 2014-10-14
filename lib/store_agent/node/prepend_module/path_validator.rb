@@ -31,6 +31,27 @@ module StoreAgent
         super
       end
 
+      def touch(*)
+        be_present!
+        be_not_reserved!
+        super
+      end
+
+      # TODO
+      def copy(dest_path = nil, *)
+        be_present!
+        be_not_reserved!
+        super
+      end
+
+      # TODO
+      def move(dest_path = nil, *)
+        be_present!
+        be_not_root!
+        be_not_reserved!
+        super
+      end
+
       def get_metadata(*)
         be_present!
         be_not_reserved!

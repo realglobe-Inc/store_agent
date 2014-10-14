@@ -46,6 +46,40 @@ module StoreAgent
         end
       end
 
+      def touch(*, recursive: false)
+        super do
+          FileUtils.touch("#{storage_object_path}.keep")
+          workspace.version_manager.add("#{storage_object_path}.keep")
+          if recursive
+            success, errors = call_for_children do |child|
+              child.touch(recursive: true)
+            end
+          end
+        end
+      end
+
+      # TODO
+      def copy(dest_path = nil, *)
+        super do
+          dest_directory = workspace.directory(dest_path)
+          %w(storage_dirname metadata_dirname permission_dirname).each do |method_name|
+            src = "#{workspace.send(method_name)}#{path}"
+            dest = "#{workspace.send(method_name)}#{dest_directory.path}"
+            FileUtils.cp_r(src, dest)
+          end
+          dest_directory.touch(recursive: true)
+          dest_directory.parent_directory.metadata.update(disk_usage: metadata.disk_usage, directory_file_count: 1, tree_file_count: directory_file_count + 1, recursive: true)
+        end
+      end
+
+      # TODO
+      def move(dest_path = nil, *)
+        super do
+          copy(dest_path)
+          delete
+        end
+      end
+
       def get_metadata(*)
         super do
         end

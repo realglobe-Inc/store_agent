@@ -25,6 +25,22 @@ module StoreAgent
         end
       end
 
+      def touch(*)
+        lock!(lock_mode: File::LOCK_SH, recursive: true) do
+          super
+        end
+      end
+
+      # TODO
+      def copy(dest_path = nil, *)
+        super
+      end
+
+      # TODO
+      def move(dest_path = nil, *)
+        super
+      end
+
       def get_metadata(*)
         lock!(lock_mode: File::LOCK_SH, recursive: true) do
           super

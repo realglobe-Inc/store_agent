@@ -23,6 +23,23 @@ module StoreAgent
         super
       end
 
+      def touch(*)
+        authorize!("read")
+        super
+      end
+
+      # TODO
+      def copy(dest_path = nil, *)
+        authorize!("read")
+        super
+      end
+
+      # TODO
+      def move(dest_path = nil, *)
+        authorize!("write")
+        super
+      end
+
       def get_metadata(*)
         authorize!("read")
         super

@@ -252,6 +252,58 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
     end
   end
 
+  context "ディレクトリのコピー" do
+    let :workspace_name do
+      "test_dir_workspace_copy"
+    end
+    let :dest_path do
+      "copy/dest"
+    end
+    before do
+      dir = workspace.directory("copy")
+      if !dir.exists?
+        dir.create
+        workspace.directory("copy/src").create
+        workspace.file("copy/src/foo.txt").create("copy")
+        workspace.directory("copy/src").copy(dest_path)
+      end
+    end
+
+    it "ディレクトリが中身ごとコピーされる" do
+      expect(workspace.file("copy/dest/foo.txt").read).to eq "copy"
+    end
+    it "メタデータが更新される" do
+      expect(workspace.directory("copy").tree_file_count).to eq 4
+    end
+  end
+
+  context "ディレクトリの移動" do
+    let :workspace_name do
+      "test_dir_workspace_move"
+    end
+    let :dest_path do
+      "move_dest/dir"
+    end
+    before do
+      dir = workspace.directory("move")
+      if !dir.exists?
+        dir.create
+        workspace.directory("move_dest").create
+        workspace.directory("move/src").create
+        workspace.file("move/src/bar.txt").create("move")
+        workspace.directory("move/src").move(dest_path)
+      end
+    end
+
+    it "ディレクトリが中身ごと移動する" do
+      expect(workspace.file("move_dest/dir/bar.txt").read).to eq "move"
+    end
+    it "メタデータが更新される" do
+      expect(workspace.directory("move").tree_file_count).to eq 0
+      expect(workspace.directory("move_dest").tree_file_count).to eq 2
+    end
+  end
+
   context "メタデータ取得のテスト" do
     let :workspace_name do
       "test_dir_workspace_get_metadata"

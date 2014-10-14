@@ -40,6 +40,34 @@ module StoreAgent
         end
       end
 
+      def touch(*)
+        super do
+          FileUtils.touch(storage_object_path)
+          workspace.version_manager.add(storage_object_path)
+        end
+      end
+
+      # TODO
+      def copy(dest_path = nil, *)
+        super do
+          file_body = read
+          dest_file = workspace.file(dest_path)
+          if dest_file.exists?
+            dest_file.update(file_body)
+          else
+            dest_file.create(read)
+          end
+        end
+      end
+
+      # TODO
+      def move(dest_path = nil, *)
+        super do
+          copy(dest_path)
+          delete
+        end
+      end
+
       def get_metadata(*)
         super do
         end

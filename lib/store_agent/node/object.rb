@@ -54,6 +54,29 @@ module StoreAgent
         true
       end
 
+      def touch(*)
+        workspace.version_manager.transaction("touch #{path}") do
+          yield
+          now = Time.now
+          metadata["updated_at"] = now
+          metadata["updated_at_unix_timestamp"] = now.to_i
+          metadata.save
+          workspace.version_manager.add(permission.file_path)
+        end
+      end
+
+      def copy(dest_path = nil)
+        workspace.version_manager.transaction("copy #{path} to #{dest_path}") do
+          yield
+        end
+      end
+
+      def move(dest_path = nil)
+        workspace.version_manager.transaction("move #{path} to #{dest_path}") do
+          yield
+        end
+      end
+
       def get_metadata(*)
         yield
         metadata.data
