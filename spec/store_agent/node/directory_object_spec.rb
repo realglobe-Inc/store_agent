@@ -296,9 +296,9 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
       end
       it "recursive: true にすると、指定したディレクトリ以下の全ファイルが変更される" do
         superuser = StoreAgent::Superuser.new
-        superuser.workspace(workspace_name).directory("chown").chown(identifier: "hoge", recursive: true)
-        expect(workspace.directory("chown").metadata["owner"]).to eq "hoge"
-        expect(workspace.file("chown/hoge.txt").metadata["owner"]).to eq "hoge"
+        superuser.workspace(workspace_name).directory("chown_r").chown(identifier: "hoge", recursive: true)
+        expect(workspace.directory("chown_r").metadata["owner"]).to eq "hoge"
+        expect(workspace.file("chown_r/fuga.txt").metadata["owner"]).to eq "hoge"
       end
     end
   end
