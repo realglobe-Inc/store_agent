@@ -29,7 +29,6 @@ module StoreAgent
             raise "file body required"
           end
           save
-          metadata.update(disk_usage: @body.length - metadata.disk_usage, recursive: true)
         end
       end
 
@@ -47,7 +46,6 @@ module StoreAgent
         end
       end
 
-      # TODO
       def copy(dest_path = nil, *)
         super do
           file_body = read
@@ -60,11 +58,22 @@ module StoreAgent
         end
       end
 
-      # TODO
       def move(dest_path = nil, *)
         super do
-          copy(dest_path)
-          delete
+          dest_file = workspace.file(dest_path)
+          if dest_file.exists?
+            disk_usage_diff = metadata.disk_usage - dest_file.metadata.disk_usage
+            file_count = 0
+          else
+            disk_usage_diff = metadata.disk_usage
+            file_count = 1
+          end
+          FileUtils.mv(storage_object_path, dest_file.storage_object_path)
+          FileUtils.mv(metadata.file_path, dest_file.metadata.file_path)
+          FileUtils.mv(permission.file_path, dest_file.permission.file_path)
+          dest_file.touch
+          dest_file.parent_directory.metadata.update(disk_usage: disk_usage_diff, directory_file_count: file_count, tree_file_count: file_count, recursive: true)
+          parent_directory.metadata.update(disk_usage: -dest_file.metadata.disk_usage, directory_file_count: -1, tree_file_count: -1, recursive: true)
         end
       end
 
@@ -109,6 +118,8 @@ module StoreAgent
         open(storage_object_path, "w") do |f|
           f.write @body
         end
+        disk_usage_diff = (@body || "").length - metadata.disk_usage
+        metadata.update(disk_usage: disk_usage_diff, recursive: true)
         workspace.version_manager.add(storage_object_path)
       end
 

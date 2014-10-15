@@ -58,25 +58,28 @@ module StoreAgent
         end
       end
 
-      # TODO
       def copy(dest_path = nil, *)
         super do
-          dest_directory = workspace.directory(dest_path)
-          %w(storage_dirname metadata_dirname permission_dirname).each do |method_name|
-            src = "#{workspace.send(method_name)}#{path}"
-            dest = "#{workspace.send(method_name)}#{dest_directory.path}"
-            FileUtils.cp_r(src, dest)
+          dest_directory = build_dest_directory(dest_path).create
+          success, errors = call_for_children do |child|
+            child.copy("#{dest_directory.path}#{File.basename(child.path)}")
           end
-          dest_directory.touch(recursive: true)
-          dest_directory.parent_directory.metadata.update(disk_usage: metadata.disk_usage, directory_file_count: 1, tree_file_count: directory_file_count + 1, recursive: true)
         end
       end
 
-      # TODO
       def move(dest_path = nil, *)
         super do
-          copy(dest_path)
-          delete
+          dest_directory = build_dest_directory(dest_path)
+          disk_usage = metadata.disk_usage
+          file_count = directory_file_count
+          %w(storage_dirname metadata_dirname permission_dirname).each do |method_name|
+            src = "#{workspace.send(method_name)}#{path}"
+            dest = "#{workspace.send(method_name)}#{dest_directory.path}"
+            FileUtils.mv(src, dest)
+          end
+          dest_directory.touch(recursive: true)
+          dest_directory.parent_directory.metadata.update(disk_usage: disk_usage, directory_file_count: 1, tree_file_count: file_count + 1, recursive: true)
+          parent_directory.metadata.update(disk_usage: -disk_usage, directory_file_count: -1, tree_file_count: -(file_count + 1), recursive: true)
         end
       end
 
@@ -119,8 +122,6 @@ module StoreAgent
           end
         end
       end
-
-      # TODO mv directory
 
       def find_object(path)
         object = StoreAgent::Node::Object.new(workspace: workspace, path: namespaced_absolute_path(path))
@@ -180,6 +181,15 @@ module StoreAgent
 
       def namespaced_absolute_path(path)
         "#{@path}#{sanitize_path(path)}"
+      end
+
+      def build_dest_directory(dest_path)
+        dest_directory = workspace.directory(dest_path)
+        if dest_directory.exists?
+          dest_directory.directory(File.basename(path))
+        else
+          dest_directory
+        end
       end
 
       def current_children_filenames

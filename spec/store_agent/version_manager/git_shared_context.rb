@@ -188,7 +188,7 @@ RSpec.shared_context "git" do
       expect(workspace.version_manager.revisions.first).to_not eq revision
     end
   end
-  context "オブジェクトのコピー/移動", focus: true do
+  context "オブジェクトのコピー/移動" do
     let :workspace do
       user.workspace("#{workspace_name}_copy_and_move")
     end
@@ -221,10 +221,11 @@ RSpec.shared_context "git" do
     it "ディレクトリのコピー" do
       workspace.directory("copy_dir/src_dir").create
       workspace.file("copy_dir/src_dir/foo.txt").create("copy")
+      workspace.directory("copy_dir/dest_dir").create
       workspace.directory("copy_dir/src_dir").copy("copy_dir/dest_dir")
-      expect(workspace.file("copy_dir/dest_dir/foo.txt").read).to eq "copy"
+      expect(workspace.file("copy_dir/dest_dir/src_dir/foo.txt").read).to eq "copy"
       expect(workspace.directory("copy_dir/src_dir").directory_file_count).to eq 1
-      expect(workspace.directory("copy_dir/dest_dir").tree_file_count).to eq 1
+      expect(workspace.directory("copy_dir/dest_dir").tree_file_count).to eq 2
     end
     it "ディレクトリの移動" do
       workspace.directory("move_dir/src_dir").create

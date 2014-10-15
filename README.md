@@ -72,6 +72,14 @@ file_02.exists? # => false
 file_02.update("fuga") # => StoreAgent::PathError
 file_02.delete # => StoreAgent::PathError
 
+# ファイル/ディレクトリの移動
+file_01.move("move.txt")
+directory_01.move("move_dir")
+
+# ファイル/ディレクトリのコピー
+workspace.file("move.txt").copy("hoge.txt")
+workspace.directory("move_dir").copy("foo")
+
 # メタデータ
 p directory_01.metadata # => {...}
 p file_01.metadata # => {...}

@@ -144,6 +144,12 @@ module StoreAgent
         false
       end
 
+      protected
+
+      def storage_object_path
+        "#{@workspace.storage_dirname}#{@path}"
+      end
+
       private
 
       def sanitize_path(path)
@@ -152,10 +158,6 @@ module StoreAgent
 
       def owner?
         metadata["owner"] == current_user.identifier
-      end
-
-      def storage_object_path
-        "#{@workspace.storage_dirname}#{@path}"
       end
 
       def bytesize
