@@ -57,9 +57,7 @@ module StoreAgent
       def touch(*)
         workspace.version_manager.transaction("touch #{path}") do
           yield
-          now = Time.now
-          metadata["updated_at"] = now
-          metadata["updated_at_unix_timestamp"] = now.to_i
+          metadata.updated_at = Time.now
           metadata.save
           workspace.version_manager.add(permission.file_path)
         end
@@ -90,7 +88,7 @@ module StoreAgent
       def chown(*, identifier: nil, **_)
         workspace.version_manager.transaction("change_owner #{path}") do
           yield
-          metadata["owner"] = identifier
+          metadata.owner = identifier
           metadata.save
         end
       end
@@ -143,8 +141,6 @@ module StoreAgent
       def directory?
         false
       end
-
-      protected
 
       def storage_object_path
         "#{@workspace.storage_dirname}#{@path}"

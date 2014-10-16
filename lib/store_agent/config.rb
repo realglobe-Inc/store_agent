@@ -23,6 +23,8 @@ module StoreAgent
     attr_accessor :superuser_identifier
     attr_accessor :guest_identifier
     attr_accessor :version_manager
+    attr_accessor :storage_data_encoders
+    attr_accessor :attachment_data_encoders
     attr_accessor :reserved_filenames
     attr_accessor :lock_timeout
     attr_accessor :default_directory_bytesize_limit
@@ -40,6 +42,8 @@ module StoreAgent
       @superuser_identifier = "root"
       @guest_identifier = "nobody"
       @version_manager = StoreAgent::VersionManager
+      @storage_data_encoders = []
+      @attachment_data_encoders = []
       @reserved_filenames = %w(. ..)
       @lock_timeout = 0.1
       @default_directory_bytesize_limit = 2 ** 30

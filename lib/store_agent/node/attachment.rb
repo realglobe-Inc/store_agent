@@ -34,15 +34,25 @@ module StoreAgent
       end
 
       def save
+        json_data = Oj.dump(data, mode: :compat, indent: StoreAgent.config.json_indent_level)
+        encoded_data = StoreAgent.config.attachment_data_encoders.inject(json_data) do |data, encoder|
+          encoder.encode(data)
+        end
         open(file_path, File::WRONLY | File::CREAT) do |f|
           f.truncate(0)
-          f.write Oj.dump(data, mode: :compat, indent: StoreAgent.config.json_indent_level)
+          f.write encoded_data
         end
         object.workspace.version_manager.add(file_path)
       end
 
       def load
-        File.exists?(file_path) && Oj.load_file(file_path)
+        if File.exists?(file_path)
+          encoded_data = open(file_path, "rb").read
+          json_data = StoreAgent.config.attachment_data_encoders.reverse.inject(encoded_data) do |data, encoder|
+            encoder.decode(data)
+          end
+          Oj.load(json_data)
+        end
       end
 
       def reload

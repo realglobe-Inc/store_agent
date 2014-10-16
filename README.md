@@ -130,6 +130,20 @@ end
 file_or_directory.read(revision: "version")
 ```
 
+## 暗号化
+
+ファイルやメタデータを暗号化して保存しておきたい場合、以下のように設定する。  
+
+```ruby
+# initialize
+StoreAgent.configure do |c|
+  # ファイルを暗号化する場合
+  c.storage_data_encoders = [StoreAgent::DataEncoder::OpensslAes256CbcEncoder.new]
+  # メタデータやパーミッション情報を暗号化する場合
+  c.attachment_data_encoders = [StoreAgent::DataEncoder::OpensslAes256CbcEncoder.new]
+end
+```
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/store_agent/fork )

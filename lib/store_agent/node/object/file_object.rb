@@ -13,11 +13,14 @@ module StoreAgent
       def read(revision: nil)
         super do
           if revision.nil?
-            open(storage_object_path) do |f|
+            encoded_data = open(storage_object_path) do |f|
               f.read
             end
           else
-            workspace.version_manager.read(path: storage_object_path, revision: revision)
+            encoded_data = workspace.version_manager.read(path: storage_object_path, revision: revision)
+          end
+          StoreAgent.config.attachment_data_encoders.reverse.inject(encoded_data) do |data, encoder|
+            encoder.decode(data)
           end
         end
       end
@@ -115,8 +118,11 @@ module StoreAgent
       end
 
       def save
+        encoded_data = StoreAgent.config.storage_data_encoders.inject(@body) do |data, encoder|
+          encoder.encode(data)
+        end
         open(storage_object_path, "w") do |f|
-          f.write @body
+          f.write encoded_data
         end
         disk_usage_diff = (@body || "").length - metadata.disk_usage
         metadata.update(disk_usage: disk_usage_diff, recursive: true)

@@ -58,6 +58,15 @@ module StoreAgent
         end
       end
 
+      def owner=(identifier)
+        self["owner"] = identifier
+      end
+
+      def updated_at=(time)
+        self["updated_at"] = time.to_s
+        self["updated_at_unix_timestamp"] = time.to_i
+      end
+
       private
 
       def parent
