@@ -1,25 +1,28 @@
 module StoreAgent
-  module DataEncoder
-    class OpensslAes256CbcEncoder
+  class DataEncoder
+    class OpensslAes256CbcEncoder < DataEncoder
       def initialize
         @default_password = ENV["STORE_AGENT_DATA_ENCODER_PASSWORD"] || ""
         @encryptor = OpenSSL::Cipher::AES.new(256, "CBC")
       end
 
       def encode(data, password: @default_password, **_)
-        @encryptor.encrypt
-        salt = OpenSSL::Random.random_bytes(8)
-        encrypted_data = crypt(encryptor: @encryptor, data: data, password: password, salt: salt)
-        "Salted__#{salt}#{encrypted_data}"
+        super do
+          @encryptor.encrypt
+          salt = OpenSSL::Random.random_bytes(8)
+          encrypted_data = crypt(encryptor: @encryptor, data: data, password: password, salt: salt)
+          "Salted__#{salt}#{encrypted_data}"
+        end
       end
 
       def decode(encrypted_data, password: @default_password, **_)
-        @encryptor.decrypt
-        encrypted_data.force_encoding("ASCII-8BIT")
-        salt = encrypted_data[8..15]
-        data = encrypted_data[16..-1]
-        decoded_data = crypt(encryptor: @encryptor, data: data, password: password, salt: salt)
-        decoded_data.force_encoding("UTF-8")
+        super do
+          @encryptor.decrypt
+          encrypted_data.force_encoding("ASCII-8BIT")
+          salt = encrypted_data[8..15]
+          data = encrypted_data[16..-1]
+          crypt(encryptor: @encryptor, data: data, password: password, salt: salt)
+        end
       end
 
       private
