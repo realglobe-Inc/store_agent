@@ -130,17 +130,17 @@ end
 file_or_directory.read(revision: "version")
 ```
 
-## 暗号化
+## 圧縮、暗号化
 
-ファイルやメタデータを暗号化して保存しておきたい場合、以下のように設定する。  
+ファイルやメタデータを圧縮/暗号化して保存しておきたい場合、以下のように設定する。  
 
 ```ruby
 # initialize
 StoreAgent.configure do |c|
-  # ファイルを暗号化する場合
+  # ファイルを暗号化する
   c.storage_data_encoders = [StoreAgent::DataEncoder::OpensslAes256CbcEncoder.new]
-  # メタデータやパーミッション情報を暗号化する場合
-  c.attachment_data_encoders = [StoreAgent::DataEncoder::OpensslAes256CbcEncoder.new]
+  # メタデータやパーミッション情報をgzip圧縮した上で暗号化する
+  c.attachment_data_encoders = [StoreAgent::DataEncoder::GzipEncoder.new, StoreAgent::DataEncoder::OpensslAes256CbcEncoder.new]
 end
 ```
 
