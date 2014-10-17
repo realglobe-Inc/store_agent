@@ -18,10 +18,10 @@ RSpec.describe StoreAgent::User do
       end
       it "パラメータが文字列またはシンボルの配列なら User 作成できる" do
         expect(StoreAgent::User.new(["hoge"]).identifiers).to eq ["hoge"]
-        expect(StoreAgent::User.new([:foo]).identifiers).to eq [:foo]
+        expect(StoreAgent::User.new([:foo]).identifiers).to eq ["foo"]
       end
       it "パラメータが配列を含む配列の場合、一次元配列に変換される" do
-        expect(StoreAgent::User.new("hoge", [:foo]).identifiers).to eq ["hoge", :foo]
+        expect(StoreAgent::User.new("hoge", [:foo]).identifiers).to eq ["hoge", "foo"]
       end
       it "パラメータの要素に空文字列が含まれる User は作成できない" do
         expect do

@@ -15,6 +15,7 @@ module StoreAgent
         validates_to_be_not_superuser_identifier!(identifier)
         validates_to_be_not_guest_identifier!(identifier)
       end
+      @identifiers = @identifiers.map(&:to_s)
     end
 
     def identifier
