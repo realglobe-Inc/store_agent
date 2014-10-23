@@ -142,6 +142,10 @@ module StoreAgent
         false
       end
 
+      def file?
+        false
+      end
+
       def storage_object_path
         "#{@workspace.storage_dirname}#{@path}"
       end

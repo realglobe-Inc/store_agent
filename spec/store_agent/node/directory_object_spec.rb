@@ -413,10 +413,8 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
       it "パスがファイルなら、ファイルオブジェクトを返す" do
         expect(dir.find_object("foo.txt").class).to eq StoreAgent::Node::FileObject
       end
-      it "パスにファイルが存在しない場合、エラーが発生する" do
-        expect do
-          dir.find_object("foobar.txt")
-        end.to raise_error
+      it "パスにファイルが存在しない場合、仮想オブジェクトを返す" do
+        expect(dir.find_object("foobar.txt").class).to eq StoreAgent::Node::VirtualObject
       end
     end
     context "直下のファイル一覧を取得する" do

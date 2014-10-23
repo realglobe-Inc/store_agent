@@ -127,12 +127,16 @@ module StoreAgent
         object = StoreAgent::Node::Object.new(workspace: workspace, path: namespaced_absolute_path(path))
         case object.exists? && object.filetype
         when false
-          raise "no such object"
+          virtual(path)
         when "directory"
           directory(path)
         when "file"
           file(path)
         end
+      end
+
+      def virtual(path)
+        StoreAgent::Node::VirtualObject.new(workspace: workspace, path: namespaced_absolute_path(path))
       end
 
       def directory(path)

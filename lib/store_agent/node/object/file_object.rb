@@ -133,6 +133,10 @@ module StoreAgent
         []
       end
 
+      def file?
+        false
+      end
+
       private
 
       def set_body(*params)
