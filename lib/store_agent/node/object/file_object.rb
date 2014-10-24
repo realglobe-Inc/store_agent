@@ -134,7 +134,7 @@ module StoreAgent
       end
 
       def file?
-        false
+        true
       end
 
       private
