@@ -149,6 +149,8 @@ module StoreAgent
           @body = options.to_s
         when options.is_a?(Hash)
           @body = options["body"] || options[:body]
+        else
+          @body = nil
         end
       end
     end

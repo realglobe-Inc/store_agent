@@ -6,6 +6,8 @@ module StoreAgent
         raise ArgumentError, "#{value} is empty string or symbol"
       when !value.is_a?(String) && !value.is_a?(Symbol)
         raise ArgumentError, "#{value} is not string or symbol"
+      else
+        # true
       end
     end
 

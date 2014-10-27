@@ -132,6 +132,8 @@ module StoreAgent
           directory(path)
         when "file"
           file(path)
+        else
+          raise "unknown filetype"
         end
       end
 

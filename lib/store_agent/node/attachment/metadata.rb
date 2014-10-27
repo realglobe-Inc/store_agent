@@ -49,11 +49,12 @@ module StoreAgent
       end
 
       def disk_usage=(usage)
+        usage_string = StoreAgent::Node::Metadata.datasize_format(usage)
         if directory?
-          self["directory_size"] = StoreAgent::Node::Metadata.datasize_format(usage)
+          self["directory_size"] = usage_string
           self["directory_bytes"] = usage
         else
-          self["size"] = StoreAgent::Node::Metadata.datasize_format(usage)
+          self["size"] = usage_string
           self["bytes"] = usage
         end
       end
