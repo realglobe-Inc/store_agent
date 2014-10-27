@@ -10,7 +10,7 @@ module StoreAgent
         super do
           @encryptor.encrypt
           salt = OpenSSL::Random.random_bytes(8)
-          encrypted_data = crypt(encryptor: @encryptor, data: data, password: password, salt: salt)
+          encrypted_data = crypt(data: data, password: password, salt: salt)
           "Salted__#{salt}#{encrypted_data}"
         end
       end
@@ -21,21 +21,21 @@ module StoreAgent
           encrypted_data.force_encoding("ASCII-8BIT")
           salt = encrypted_data[8..15]
           data = encrypted_data[16..-1]
-          crypt(encryptor: @encryptor, data: data, password: password, salt: salt)
+          crypt(data: data, password: password, salt: salt)
         end
       end
 
       private
 
-      def crypt(encryptor: nil, data: "", password: "", salt: "")
+      def crypt(data: "", password: "", salt: "")
         md5_base = "#{password}#{salt}".force_encoding("ASCII-8BIT")
         md5_digest1 = OpenSSL::Digest::MD5.new(md5_base).digest
         md5_digest2 = OpenSSL::Digest::MD5.new("#{md5_digest1}#{md5_base}").digest
         md5_digest3 = OpenSSL::Digest::MD5.new("#{md5_digest2}#{md5_base}").digest
-        encryptor.padding = 1
-        encryptor.key = "#{md5_digest1}#{md5_digest2}"
-        encryptor.iv = md5_digest3
-        encryptor.update(data) + encryptor.final
+        @encryptor.padding = 1
+        @encryptor.key = "#{md5_digest1}#{md5_digest2}"
+        @encryptor.iv = md5_digest3
+        @encryptor.update(data) + @encryptor.final
       end
     end
   end
