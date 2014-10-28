@@ -15,10 +15,10 @@ module StoreAgent
       if @errors
         "permission denied: user=#{@errors.first.object.current_user.identifier} " +
         @errors.map do |e|
-          "permission=#{e.permission} object=#{e.object.path}"
+          "workspace=#{e.object.workspace.namespace} permission=#{e.permission} object=#{e.object.path}"
         end.join(", ")
       else
-        "permission denied: user=#{object.current_user.identifier} permission=#{permission} object=#{object.path}"
+        "permission denied: user=#{object.current_user.identifier} workspace=#{object.workspace.namespace} permission=#{permission} object=#{object.path}"
       end
     end
   end

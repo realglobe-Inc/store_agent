@@ -50,5 +50,11 @@ module StoreAgent
     def permission_dirname
       File.absolute_path("#{namespace_dirname}/#{StoreAgent.config.permission_dirname}")
     end
+
+    def self.name_list
+      FileUtils.cd(StoreAgent.config.storage_root) do
+        return Dir.glob("*", File::FNM_DOTMATCH) - StoreAgent.reserved_filenames
+      end
+    end
   end
 end
