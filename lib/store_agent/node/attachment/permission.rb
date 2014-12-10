@@ -47,7 +47,7 @@ module StoreAgent
       end
 
       def initial_data
-        user_permission = {}
+        user_permission = @object.initial_permission
         if !(current_user.super_user? || current_user.guest?)
           user_permission[current_user.identifier] = StoreAgent.config.default_owner_permission
         end

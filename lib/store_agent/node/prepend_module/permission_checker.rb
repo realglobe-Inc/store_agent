@@ -56,12 +56,12 @@ module StoreAgent
       end
 
       def set_permission(*)
-        authorize!("write")
+        authorize!("chmod")
         super
       end
 
-      def set_permission(*)
-        authorize!("write")
+      def unset_permission(*)
+        authorize!("chmod")
         super
       end
 

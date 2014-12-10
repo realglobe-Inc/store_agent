@@ -10,6 +10,9 @@ module StoreAgent
 
       def create
         super do
+          if block_given?
+            yield self
+          end
           FileUtils.mkdir(storage_object_path)
           workspace.version_manager.add("#{storage_object_path}.keep")
         end
@@ -155,7 +158,7 @@ module StoreAgent
         }
       end
 
-      def initial_metadata
+      def default_metadata
         super.merge(directory_metadata)
       end
 

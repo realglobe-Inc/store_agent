@@ -25,6 +25,24 @@ module StoreAgent
         @permission ||= StoreAgent::Node::Permission.new(object: self)
       end
 
+      def initial_owner
+        @initial_owner ||= current_user.identifier
+      end
+
+      def initial_owner=(owner_identifier)
+        authorize!("chown")
+        @initial_owner = owner_identifier
+      end
+
+      def initial_permission
+        @initial_permission ||= {}
+      end
+
+      def initial_permission=(permissions)
+        authorize!("chmod")
+        @initial_permission = permissions
+      end
+
       def create(*)
         workspace.version_manager.transaction("created #{path}") do
           yield
@@ -122,16 +140,20 @@ module StoreAgent
       end
 
       def initial_metadata
+        @initial_metadata ||= {}
+      end
+
+      def default_metadata
         {
           "size" => StoreAgent::Node::Metadata.datasize_format(bytesize),
           "bytes" => bytesize,
-          "owner" => current_user.identifier,
+          "owner" => initial_owner,
           "is_dir" => directory?,
           "created_at" => updated_at.to_s,
           "updated_at" => updated_at.to_s,
           "created_at_unix_timestamp" => updated_at.to_i,
           "updated_at_unix_timestamp" => updated_at.to_i,
-        }
+        }.merge(initial_metadata)
       end
 
       def root?

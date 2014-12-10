@@ -79,7 +79,7 @@ module StoreAgent
       end
 
       def initial_data
-        object.initial_metadata
+        object.default_metadata
       end
 
       class SuperRootMetadata < Metadata
