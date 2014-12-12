@@ -193,11 +193,11 @@ module StoreAgent
       end
 
       def build_dest_directory(dest_path)
-        dest_directory = workspace.directory(dest_path)
-        if dest_directory.exists?
-          dest_directory.directory(File.basename(path))
+        dest_object = workspace.find_object(dest_path)
+        if dest_object.directory?
+          dest_object.directory(File.basename(path))
         else
-          dest_directory
+          workspace.directory(dest_path)
         end
       end
 

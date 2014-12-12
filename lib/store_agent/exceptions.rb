@@ -22,4 +22,17 @@ module StoreAgent
       end
     end
   end
+
+  class InvalidRevisionError < StandardError
+    attr_reader :path, :revision
+
+    def initialize(path: "", revision: "")
+      @path = path
+      @revision = revision
+    end
+
+    def to_s
+      "invalid revision: path=#{path} revision=#{revision}"
+    end
+  end
 end

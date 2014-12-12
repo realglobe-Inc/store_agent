@@ -28,6 +28,12 @@ RSpec.configure do |config|
   config.before(:suite) do
     StoreAgent.configure do |config|
       config.json_indent_level = 2
+      config.default_owner_permission = {
+        "read" => true,
+        "write" => true,
+        "execute" => true,
+        "chmod" => true
+      }
     end
     if File.exists?(StoreAgent.config.storage_root)
       FileUtils.remove_dir(StoreAgent.config.storage_root)

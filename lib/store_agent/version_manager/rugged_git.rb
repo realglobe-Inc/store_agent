@@ -83,6 +83,8 @@ module StoreAgent
         paths.inject(repository.lookup(revision).tree) do |tree, path|
           repository.lookup(tree.find{|t| t[:name] == path}[:oid])
         end
+      rescue
+        raise StoreAgent::InvalidRevisionError.new(path: path, revision: revision)
       end
 
       def read_directory(path: "", revision: nil)

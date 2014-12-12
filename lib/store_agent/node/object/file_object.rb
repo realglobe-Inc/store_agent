@@ -52,7 +52,7 @@ module StoreAgent
       def copy(dest_path = nil, *)
         super do
           file_body = read
-          dest_file = workspace.file(dest_path)
+          dest_file = build_dest_file(dest_path)
           if dest_file.exists?
             dest_file.update(file_body)
           else
@@ -63,7 +63,7 @@ module StoreAgent
 
       def move(dest_path = nil, *)
         super do
-          dest_file = workspace.file(dest_path)
+          dest_file = build_dest_file(dest_path)
           if dest_file.exists?
             disk_usage_diff = metadata.disk_usage - dest_file.metadata.disk_usage
             file_count = 0
@@ -151,6 +151,15 @@ module StoreAgent
           @body = options["body"] || options[:body]
         else
           @body = nil
+        end
+      end
+
+      def build_dest_file(dest_path)
+        dest_object = workspace.find_object(dest_path)
+        if dest_object.directory?
+          dest_object.file(File.basename(path))
+        else
+          workspace.file(dest_path)
         end
       end
     end

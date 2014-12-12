@@ -4,7 +4,7 @@ module StoreAgent
     include StoreAgent::Validator
 
     attr_reader :current_user, :namespace, :version_manager
-    def_delegators :root, *%w(directory file exists?)
+    def_delegators :root, *%w(find_object directory file exists?)
 
     def initialize(current_user: nil, namespace: nil)
       @current_user = current_user

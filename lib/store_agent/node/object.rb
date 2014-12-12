@@ -131,6 +131,10 @@ module StoreAgent
         end
       end
 
+      def revisions
+        workspace.version_manager.revisions("storage#{path}")
+      end
+
       def exists?
         File.exists?(storage_object_path)
       end
