@@ -18,9 +18,9 @@ module StoreAgent
         end
       end
 
-      def remove(*paths)
+      def remove(*paths, **_)
         super do
-          repository.remove(paths)
+          repository.remove(paths, recursive: true)
         end
       end
 

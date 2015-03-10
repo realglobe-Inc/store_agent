@@ -25,8 +25,12 @@ module StoreAgent
         super
       end
 
+      def base_path
+        "#{@object.workspace.metadata_dirname}#{@object.path}"
+      end
+
       def file_path
-        "#{@object.workspace.metadata_dirname}#{@object.path}#{StoreAgent.config.metadata_extension}"
+        "#{base_path}#{StoreAgent.config.metadata_extension}"
       end
 
       def self.datasize_format(size)

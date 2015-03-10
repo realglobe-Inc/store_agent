@@ -46,6 +46,17 @@ RSpec.describe StoreAgent::DataEncoder do
       Oj.load(`#{command}`)
     end.to_not raise_error
   end
+  it "メタデータのファイルサイズはエンコード前のサイズ" do
+    pending
+
+    dir = workspace.directory("bitesize_test").create
+    file = workspace.file("bitesize_test/hoge.txt").create("12 byte file")
+    expect(file.metadata["bytes"]).to eq 12
+    expect(workspace.directory("bitesize_test").metadata.disk_usage).to eq 4084
+    puts dir.metadata.inspect
+    puts dir.metadata.reload.inspect
+    puts file.metadata.inspect
+  end
   it "パーミッション情報は gzip -c ... | openssl ... でエンコードされた形式で保存される" do
     file = workspace.file("foo/bar.txt")
     command = "openssl enc -d -aes-256-cbc -in #{file.permission.file_path} -k '#{password}' | gunzip"

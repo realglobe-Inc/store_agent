@@ -45,7 +45,7 @@ module StoreAgent
           else
             raise StoreAgent::PermissionDeniedError.new(errors: errors)
           end
-          workspace.version_manager.remove("#{storage_object_path}.keep")
+          workspace.version_manager.remove(storage_object_path, directory: true)
         end
       end
 
@@ -75,14 +75,16 @@ module StoreAgent
           dest_directory = build_dest_directory(dest_path)
           disk_usage = metadata.disk_usage
           file_count = directory_file_count
-          %w(storage_dirname metadata_dirname permission_dirname).each do |method_name|
-            src = "#{workspace.send(method_name)}#{path}"
-            dest = "#{workspace.send(method_name)}#{dest_directory.path}"
-            FileUtils.mv(src, dest)
-          end
+          FileUtils.mv(storage_object_path, dest_directory.storage_object_path)
+          FileUtils.mv(metadata.base_path, dest_directory.metadata.base_path)
+          FileUtils.mv(permission.base_path, dest_directory.permission.base_path)
           dest_directory.touch(recursive: true)
           dest_directory.parent_directory.metadata.update(disk_usage: disk_usage, directory_file_count: 1, tree_file_count: file_count + 1, recursive: true)
           parent_directory.metadata.update(disk_usage: -disk_usage, directory_file_count: -1, tree_file_count: -(file_count + 1), recursive: true)
+
+          [storage_object_path, metadata.base_path, permission.base_path].each do |dir_path|
+            workspace.version_manager.remove(dir_path, directory: true)
+          end
         end
       end
 
@@ -194,7 +196,7 @@ module StoreAgent
 
       def build_dest_directory(dest_path)
         dest_object = workspace.find_object(dest_path)
-        if dest_object.directory?
+        if dest_object.exists? && dest_object.directory?
           dest_object.directory(File.basename(path))
         else
           workspace.directory(dest_path)

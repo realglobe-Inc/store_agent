@@ -21,10 +21,14 @@ module StoreAgent
         end
       end
 
-      def remove(*paths)
+      def remove(*paths, directory: false)
         super do
           paths.flatten.each do |path|
-            repository.index.remove(relative_path(path))
+            if directory
+              repository.index.remove_dir(relative_path(path))
+            else
+              repository.index.remove(relative_path(path))
+            end
           end
         end
       end

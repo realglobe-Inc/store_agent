@@ -77,6 +77,10 @@ module StoreAgent
           dest_file.touch
           dest_file.parent_directory.metadata.update(disk_usage: disk_usage_diff, directory_file_count: file_count, tree_file_count: file_count, recursive: true)
           parent_directory.metadata.update(disk_usage: -dest_file.metadata.disk_usage, directory_file_count: -1, tree_file_count: -1, recursive: true)
+
+          [storage_object_path, metadata.file_path, permission.file_path].each do |file_path|
+            workspace.version_manager.remove(file_path)
+          end
         end
       end
 

@@ -33,8 +33,12 @@ module StoreAgent
         end
       end
 
+      def base_path
+        "#{@object.workspace.permission_dirname}#{@object.path}"
+      end
+
       def file_path
-        "#{@object.workspace.permission_dirname}#{@object.path}#{StoreAgent.config.permission_extension}"
+        "#{base_path}#{StoreAgent.config.permission_extension}"
       end
 
       private

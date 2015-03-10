@@ -207,6 +207,9 @@ RSpec.shared_context "git" do
     it "ファイルのコピー" do
       workspace.file("copy_file/src.txt").create("copy")
       workspace.file("copy_file/src.txt").copy("copy_file_dest/dest.txt")
+      scoped_dest_commit_id = workspace.version_manager.revisions("storage/copy_file_dest/dest.txt").first
+      workspace_last_commit_id = workspace.version_manager.revisions.first
+      expect(scoped_dest_commit_id).to eq workspace_last_commit_id
       expect(workspace.file("copy_file/src.txt").read).to eq "copy"
       expect(workspace.directory("copy_file").directory_file_count).to eq 1
       expect(workspace.directory("copy_file_dest").directory_file_count).to eq 1
@@ -214,6 +217,11 @@ RSpec.shared_context "git" do
     it "ファイルの移動" do
       workspace.file("move_file/src.txt").create("move")
       workspace.file("move_file/src.txt").move("move_file_dest/dest.txt")
+      scoped_src_commit_id = workspace.version_manager.revisions("storage/move_file/src.txt").first
+      scoped_dest_commit_id = workspace.version_manager.revisions("storage/move_file_dest/dest.txt").first
+      workspace_last_commit_id = workspace.version_manager.revisions.first
+      expect(scoped_src_commit_id).to eq workspace_last_commit_id
+      expect(scoped_dest_commit_id).to eq workspace_last_commit_id
       expect(workspace.file("move_file_dest/dest.txt").read).to eq "move"
       expect(workspace.directory("move_file").directory_file_count).to eq 0
       expect(workspace.directory("move_file_dest").directory_file_count).to eq 1
@@ -221,16 +229,29 @@ RSpec.shared_context "git" do
     it "ディレクトリのコピー" do
       workspace.directory("copy_dir/src_dir").create
       workspace.file("copy_dir/src_dir/foo.txt").create("copy")
-      workspace.directory("copy_dir/dest_dir").create
       workspace.directory("copy_dir/src_dir").copy("copy_dir/dest_dir")
-      expect(workspace.file("copy_dir/dest_dir/src_dir/foo.txt").read).to eq "copy"
+      scoped_dest_dir_commit_id = workspace.version_manager.revisions("storage/copy_dir/dest_dir").first
+      scoped_dest_file_commit_id = workspace.version_manager.revisions("storage/copy_dir/dest_dir/foo.txt").first
+      workspace_last_commit_id = workspace.version_manager.revisions.first
+      expect(scoped_dest_dir_commit_id).to eq workspace_last_commit_id
+      expect(scoped_dest_file_commit_id).to eq workspace_last_commit_id
+      expect(workspace.file("copy_dir/dest_dir/foo.txt").read).to eq "copy"
       expect(workspace.directory("copy_dir/src_dir").directory_file_count).to eq 1
-      expect(workspace.directory("copy_dir/dest_dir").tree_file_count).to eq 2
+      expect(workspace.directory("copy_dir/dest_dir").tree_file_count).to eq 1
     end
     it "ディレクトリの移動" do
       workspace.directory("move_dir/src_dir").create
       workspace.file("move_dir/src_dir/bar.txt").create("move")
       workspace.directory("move_dir/src_dir").move("move_dir/dest_dir")
+      scoped_src_dir_commit_id = workspace.version_manager.revisions("storage/move_dir/src_dir").first
+      scoped_src_file_commit_id = workspace.version_manager.revisions("storage/move_dir/src_dir/bar.txt").first
+      scoped_dest_dir_commit_id = workspace.version_manager.revisions("storage/move_dir/dest_dir").first
+      scoped_dest_file_commit_id = workspace.version_manager.revisions("storage/move_dir/dest_dir/bar.txt").first
+      workspace_last_commit_id = workspace.version_manager.revisions.first
+      expect(scoped_src_dir_commit_id).to eq workspace_last_commit_id
+      expect(scoped_src_file_commit_id).to eq workspace_last_commit_id
+      expect(scoped_dest_dir_commit_id).to eq workspace_last_commit_id
+      expect(scoped_dest_file_commit_id).to eq workspace_last_commit_id
       expect(workspace.file("move_dir/dest_dir/bar.txt").read).to eq "move"
       expect(workspace.directory("move_dir/src_dir").exists?).to be false
       expect(workspace.directory("move_dir/dest_dir").tree_file_count).to eq 1

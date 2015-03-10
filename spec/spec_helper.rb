@@ -1,5 +1,7 @@
 require "simplecov"
+
 SimpleCov.start do
+  require "bundler"
   add_filter Bundler::bundle_path.to_s
   add_filter File.dirname(__FILE__)
 end
