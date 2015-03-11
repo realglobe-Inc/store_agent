@@ -167,8 +167,8 @@ module StoreAgent
       def directory_metadata
         {
           "is_dir" => true,
-          "directory_size" => StoreAgent::Node::Metadata.datasize_format(bytesize),
-          "directory_bytes" => bytesize,
+          "directory_size" => StoreAgent::Node::Metadata.datasize_format(initial_bytesize),
+          "directory_bytes" => initial_bytesize,
           "directory_size_limit" => StoreAgent::Node::Metadata.datasize_format(StoreAgent.config.default_directory_bytesize_limit),
           "directory_bytes_limit" => StoreAgent.config.default_directory_bytesize_limit,
           "directory_file_count" => 0,
@@ -192,6 +192,10 @@ module StoreAgent
 
       def namespaced_absolute_path(path)
         "#{@path}#{sanitize_path(path)}"
+      end
+
+      def initial_bytesize
+        File.size(storage_object_path)
       end
 
       def build_dest_directory(dest_path)

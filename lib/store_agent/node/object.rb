@@ -149,8 +149,8 @@ module StoreAgent
 
       def default_metadata
         {
-          "size" => StoreAgent::Node::Metadata.datasize_format(bytesize),
-          "bytes" => bytesize,
+          "size" => StoreAgent::Node::Metadata.datasize_format(initial_bytesize),
+          "bytes" => initial_bytesize,
           "owner" => initial_owner,
           "is_dir" => directory?,
           "created_at" => updated_at.to_s,
@@ -186,8 +186,8 @@ module StoreAgent
         metadata["owner"] == current_user.identifier
       end
 
-      def bytesize
-        File.size(storage_object_path)
+      def initial_bytesize
+        0
       end
 
       def updated_at

@@ -7,6 +7,7 @@ module StoreAgent
         super do
           set_body(*params, &block)
           save
+          workspace.version_manager.add(storage_object_path)
         end
       end
 
@@ -32,6 +33,9 @@ module StoreAgent
             raise "file body required"
           end
           save
+          disk_usage_diff = @body.length - metadata.disk_usage
+          metadata.update(disk_usage: disk_usage_diff, recursive: true)
+          workspace.version_manager.add(storage_object_path)
         end
       end
 
@@ -128,9 +132,6 @@ module StoreAgent
         open(storage_object_path, "w") do |f|
           f.write encoded_data
         end
-        disk_usage_diff = (@body || "").length - metadata.disk_usage
-        metadata.update(disk_usage: disk_usage_diff, recursive: true)
-        workspace.version_manager.add(storage_object_path)
       end
 
       def children
@@ -142,6 +143,10 @@ module StoreAgent
       end
 
       private
+
+      def initial_bytesize
+        (@body || "").size
+      end
 
       def set_body(*params)
         case
