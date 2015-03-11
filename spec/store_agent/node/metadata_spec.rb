@@ -7,6 +7,9 @@ RSpec.describe StoreAgent::Node::Metadata do
   let :owner do
     StoreAgent::User.new("group", "owner")
   end
+  let :namespaced_user do
+    StoreAgent::User.new(["user_id", "namespaced_id"])
+  end
   let :workspace do
     owner.workspace(workspace_name)
   end
@@ -22,6 +25,15 @@ RSpec.describe StoreAgent::Node::Metadata do
 
     it "ルートディレクトリの使用容量は 4096 バイト" do
       expect(@root_node.metadata.disk_usage).to eq 4096
+    end
+  end
+
+  context "ID が配列のユーザーで Workspace を作成した場合" do
+    it "owner は配列の先頭要素が適用される" do
+      namespaced_workspace = namespaced_user.workspace("test_workspace_namespaced_id")
+      namespaced_workspace.create
+      root_node = namespaced_workspace.root
+      expect(root_node.metadata["owner"]).to eq "user_id"
     end
   end
 

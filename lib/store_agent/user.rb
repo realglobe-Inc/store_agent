@@ -5,21 +5,35 @@ module StoreAgent
     attr_reader :identifiers
 
     def initialize(*identifiers)
-      @identifiers = identifiers.flatten.compact
+      @identifiers = identifiers.compact
       if @identifiers.empty?
         raise ArgumentError, "identifier(s) is required"
       end
-      @identifiers.each do |identifier|
-        validates_to_be_string_or_symbol!(identifier)
-        validates_to_be_excluded_slash!(identifier)
-        validates_to_be_not_superuser_identifier!(identifier)
-        validates_to_be_not_guest_identifier!(identifier)
+      @identifiers = @identifiers.map do |identifier|
+        case
+        when identifier.is_a?(String), identifier.is_a?(Symbol)
+          stringify_identifier(identifier)
+        when identifier.is_a?(Array)
+          case identifier.length
+          when 0
+            raise ArgumentError, "identifier(s) contains empty array"
+          when 1
+            stringify_identifier(identifier.first)
+          else
+            identifier.map{|id| stringify_identifier(id)}
+          end
+        else
+          raise ArgumentError, "identifier(s) must be String, Symbol or Array"
+        end
       end
-      @identifiers = @identifiers.map(&:to_s)
+    end
+
+    def identifier_array
+      [identifiers.last].flatten
     end
 
     def identifier
-      identifiers.last
+      identifier_array.first
     end
 
     def super_user?
@@ -32,6 +46,16 @@ module StoreAgent
 
     def workspace(namespace)
       StoreAgent::Workspace.new(current_user: self, namespace: namespace)
+    end
+
+    private
+
+    def stringify_identifier(identifier)
+      validates_to_be_string_or_symbol!(identifier)
+      validates_to_be_excluded_slash!(identifier)
+      validates_to_be_not_superuser_identifier!(identifier)
+      validates_to_be_not_guest_identifier!(identifier)
+      identifier.to_s
     end
   end
 

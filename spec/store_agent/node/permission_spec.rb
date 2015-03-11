@@ -5,13 +5,16 @@ RSpec.describe StoreAgent::Node::Permission do
     StoreAgent::Superuser.new
   end
   let :owner do
-    StoreAgent::User.new("group", "owner_uid")
+    StoreAgent::User.new("owner_uid")
   end
   let :user do
-    StoreAgent::User.new("group", "user_id")
+    StoreAgent::User.new("user_id")
   end
-  let :group do
-    StoreAgent::User.new("group")
+  let :group_user do
+    StoreAgent::User.new("owner_uid", "group")
+  end
+  let :namespaced_user do
+    StoreAgent::User.new(["user_id", "namespaced_id"])
   end
   let :guest do
     StoreAgent::Guest.new
@@ -44,8 +47,41 @@ RSpec.describe StoreAgent::Node::Permission do
         expect(@root_node.permission.allow?("read")).to be true
         expect(@root_node.permission.allow?("write")).to be true
       end
+      it "ID に Workspace の作成者の ID を含む場合、権限がある" do
+        node = group_user.workspace(workspace_name).root
+        expect(node.permission.allow?("read")).to be true
+        expect(node.permission.allow?("write")).to be true
+      end
       it "ゲスト User には全権限が無い" do
         node = guest.workspace(workspace_name).directory("/")
+        expect(node.permission.allow?("read")).to be false
+        expect(node.permission.allow?("write")).to be false
+      end
+    end
+    context "ID が配列のユーザーで Workspace を作成する" do
+      before do
+        @namespaced_workspace = namespaced_user.workspace("permission_workspace_namespaced_id")
+        if !@namespaced_workspace.exists?
+          @namespaced_workspace.create
+        end
+        @root_node = @namespaced_workspace.root
+      end
+
+      it "権限情報はネストしたハッシュになる" do
+        expect(@root_node.permission.data["users"]["user_id"]["namespaced_id"]["read"]).to eq true
+        expect(@root_node.permission.data["users"]["user_id"]["namespaced_id"]["write"]).to eq true
+      end
+      it "Superuser には権限がある" do
+        node = super_user.workspace("permission_workspace_namespaced_id").directory("/")
+        expect(node.permission.allow?("read")).to be true
+        expect(node.permission.allow?("write")).to be true
+      end
+      it "Workspace の作成者には権限がある" do
+        expect(@root_node.permission.allow?("read")).to be true
+        expect(@root_node.permission.allow?("write")).to be true
+      end
+      it "User には権限が無い" do
+        node = user.workspace("permission_workspace_namespaced_id").directory("/")
         expect(node.permission.allow?("read")).to be false
         expect(node.permission.allow?("write")).to be false
       end
@@ -130,6 +166,13 @@ RSpec.describe StoreAgent::Node::Permission do
       it "権限を付与されればファイルを読めるようになる" do
         owner.workspace(workspace_name).file("foo/hoge.txt").set_permission(identifier: "user_id", permission_values: {"read" => true})
         expect(user.workspace(workspace_name).file("foo/hoge.txt").read).to eq "0987654321"
+      end
+    end
+    context "User(namespaced)" do
+      it "ディレクトリを作成できない" do
+        expect do
+          namespaced_user.workspace(workspace_name).directory("foo/namespaced_user_dir").create
+        end.to raise_error
       end
     end
     context "Guest" do

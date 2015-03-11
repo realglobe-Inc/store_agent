@@ -5,8 +5,8 @@ module StoreAgent
         case
         when current_user.super_user?
           true
-        when identifier = permission_defined_user_identifier(permission_name)
-          data["users"][identifier][permission_name]
+        when !(permission_value = get_permission_value(permission_name)).nil?
+          permission_value
         else
           !!data["guest"][permission_name]
         end
@@ -43,17 +43,24 @@ module StoreAgent
 
       private
 
-      def permission_defined_user_identifier(permission_name)
-        current_user.identifiers.reverse.find do |identifier|
-          user_permission = data["users"][identifier]
-          user_permission && user_permission.key?(permission_name)
+      def get_permission_value(permission_name)
+        current_user.identifiers.reverse.each do |identifier|
+          user_permission = [identifier].flatten.inject(data["users"]) do |r, id|
+            r[id] || break
+          end
+          if user_permission && user_permission.key?(permission_name)
+            return user_permission[permission_name]
+          end
         end
+        nil
       end
 
       def initial_data
-        user_permission = @object.initial_permission
+        user_permission = {}
         if !(current_user.super_user? || current_user.guest?)
-          user_permission[current_user.identifier] = StoreAgent.config.default_owner_permission
+          user_permission = current_user.identifier_array.reverse.inject(@object.initial_permission) do |r, id|
+            {id => r}
+          end
         end
         {
           "users" => user_permission,

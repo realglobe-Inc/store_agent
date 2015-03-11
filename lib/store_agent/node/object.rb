@@ -35,7 +35,7 @@ module StoreAgent
       end
 
       def initial_permission
-        @initial_permission ||= {}
+        @initial_permission ||= StoreAgent.config.default_owner_permission
       end
 
       def initial_permission=(permissions)
