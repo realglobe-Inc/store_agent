@@ -256,24 +256,68 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
     let :workspace_name do
       "test_dir_workspace_copy"
     end
-    let :dest_path do
-      "copy/dest"
+    let :src_dir do
+      workspace.directory("copy/src")
     end
     before do
       dir = workspace.directory("copy")
       if !dir.exists?
         dir.create
-        workspace.directory("copy/src").create
-        workspace.file("copy/src/foo.txt").create("copy")
-        workspace.directory("copy/src").copy(dest_path)
+        src_dir.create
+        src_dir.file("foo.txt").create("copy")
       end
     end
 
-    it "ディレクトリが中身ごとコピーされる" do
-      expect(workspace.file("copy/dest/foo.txt").read).to eq "copy"
+    context "コピー先にオブジェクトが無い場合" do
+      it "ディレクトリが中身ごとコピーされ、メタデータが更新される" do
+        dest_path = "copy/dest"
+
+        prev_count = workspace.directory("copy").tree_file_count
+        src_dir.copy(dest_path)
+        expect(workspace.file("copy/dest/foo.txt").read).to eq "copy"
+        expect(workspace.directory("copy").tree_file_count).to eq prev_count + 2
+      end
     end
-    it "メタデータが更新される" do
-      expect(workspace.directory("copy").tree_file_count).to eq 4
+    context "コピー先にファイルが存在する場合" do
+      it "例外 InvalidNodeTypeError が発生する" do
+        dest_file_path = "copy/dest_file.txt"
+        workspace.file(dest_file_path).create("dest file")
+
+        expect do
+          src_dir.copy(dest_file_path)
+        end.to raise_error StoreAgent::InvalidNodeTypeError
+      end
+    end
+    context "コピー先にディレクトリが存在する場合" do
+      it "コピー先のディレクトリ内に同名のオブジェクトが存在しない場合、ディレクトリがコピーされる" do
+        dest_directory_path = "copy/dest_dir"
+        workspace.directory(dest_directory_path).create
+
+        prev_count = workspace.directory("copy").tree_file_count
+        prev_bytesize = workspace.directory("copy").metadata["directory_bytes"]
+        src_dir.copy(dest_directory_path)
+        expect(workspace.directory(dest_directory_path).file("src/foo.txt").read).to eq "copy"
+        expect(workspace.directory("copy").metadata["directory_bytes"]).to eq prev_bytesize + 4096 + 4
+        expect(workspace.directory("copy").tree_file_count).to eq prev_count + 2
+      end
+      it "コピー先のディレクトリ内に同名のファイルが存在する場合、例外が発生する" do
+        dest_directory_path = "copy/dest_exists_file"
+        workspace.directory(dest_directory_path).create
+        workspace.directory(dest_directory_path).file("src").create("file already exists")
+
+        expect do
+          src_dir.copy(dest_directory_path)
+        end.to raise_error StoreAgent::InvalidPathError
+      end
+      it "コピー先のディレクトリ内に同名のディレクトリが存在する場合、例外が発生する" do
+        dest_directory_path = "copy/dest_exists_dir"
+        workspace.directory(dest_directory_path).create
+        workspace.directory(dest_directory_path).directory("src").create
+
+        expect do
+          src_dir.copy(dest_directory_path)
+        end.to raise_error StoreAgent::InvalidPathError
+      end
     end
   end
 
@@ -281,26 +325,72 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
     let :workspace_name do
       "test_dir_workspace_move"
     end
-    let :dest_path do
-      "move_dest/dir"
+    let :directory do
+      workspace.directory("move")
+    end
+    let :src_dir do
+      workspace.directory("move/src")
     end
     before do
-      dir = workspace.directory("move")
-      if !dir.exists?
-        dir.create
-        workspace.directory("move_dest").create
-        workspace.directory("move/src").create
+      if !directory.exists?
+        directory.create
+      end
+      if !src_dir.exists?
+        src_dir.create
         workspace.file("move/src/bar.txt").create("move")
-        workspace.directory("move/src").move(dest_path)
       end
     end
 
-    it "ディレクトリが中身ごと移動する" do
-      expect(workspace.file("move_dest/dir/bar.txt").read).to eq "move"
+    context "移動先にオブジェクトが無い場合" do
+      it "ディレクトリが中身ごと移動され、メタデータが更新される" do
+        dest_path = "move/dest"
+
+        prev_count = workspace.directory("move").tree_file_count
+        src_dir.move(dest_path)
+        expect(workspace.file("move/dest/bar.txt").read).to eq "move"
+        expect(workspace.directory("move").tree_file_count).to eq prev_count
+      end
     end
-    it "メタデータが更新される" do
-      expect(workspace.directory("move").tree_file_count).to eq 0
-      expect(workspace.directory("move_dest").tree_file_count).to eq 2
+    context "移動先にファイルが存在する場合" do
+      it "例外 InvalidNodeTypeError が発生する" do
+        dest_file_path = "move/dest_file.txt"
+        workspace.file(dest_file_path).create("dest file")
+
+        expect do
+          src_dir.move(dest_file_path)
+        end.to raise_error StoreAgent::InvalidNodeTypeError
+      end
+    end
+    context "移動先にディレクトリが存在する場合" do
+      it "移動先のディレクトリ内に同名のオブジェクトが存在しない場合、ディレクトリが移動される" do
+        dest_directory_path = "move/dest_dir"
+        workspace.directory(dest_directory_path).create
+
+        prev_count = workspace.directory("move").tree_file_count
+        prev_bytesize = workspace.directory("move").metadata["directory_bytes"]
+        src_dir.move(dest_directory_path)
+        expect(workspace.directory(dest_directory_path).file("src/bar.txt").read).to eq "move"
+        expect(workspace.directory("move").metadata["directory_bytes"]).to eq prev_bytesize
+        expect(workspace.directory("move").tree_file_count).to eq prev_count
+      end
+      it "移動先のディレクトリ内に同名のファイルが存在する場合、例外が発生する" do
+        dest_directory_path = "move/dest_exists_file"
+        workspace.directory(dest_directory_path).create
+        workspace.directory(dest_directory_path).file("src").create("file already exists")
+
+        expect do
+          src_dir.move(dest_directory_path)
+        end.to raise_error StoreAgent::InvalidPathError
+      end
+      it "移動先のディレクトリ内に同名のディレクトリが存在する場合、例外が発生する" do
+        dest_directory_path = "move/dest_exists_dir"
+        workspace.directory(dest_directory_path).create
+        workspace.directory(dest_directory_path).directory("src").create
+
+        expect do
+          src_dir.move(dest_directory_path)
+        end.to raise_error StoreAgent::InvalidPathError
+      end
     end
   end
 

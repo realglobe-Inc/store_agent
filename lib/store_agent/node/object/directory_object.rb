@@ -200,7 +200,14 @@ module StoreAgent
 
       def build_dest_directory(dest_path)
         dest_object = workspace.find_object(dest_path)
-        if dest_object.exists? && dest_object.directory?
+        case
+        when dest_object.file?
+          raise InvalidNodeTypeError.new(src_object: self, dest_object: dest_object)
+        when dest_object.directory?
+          sub_directory_object = dest_object.find_object(File.basename(path))
+          if sub_directory_object.exists?
+            raise InvalidPathError, "object already exists: #{sub_directory_object.path}"
+          end
           dest_object.directory(File.basename(path))
         else
           workspace.directory(dest_path)
