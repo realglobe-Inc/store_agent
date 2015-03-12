@@ -95,5 +95,17 @@ RSpec.describe StoreAgent::User do
         expect(StoreAgent::Superuser.new.super_user?).to be true
       end
     end
+
+    context "Guest の初期化" do
+      it "Guest はパラメータ無しでも作成できる" do
+        expect(StoreAgent::Guest.new.identifiers).to eq ["nobody"]
+      end
+      it "Guest はパラメータを渡しても無視される" do
+        expect(StoreAgent::Guest.new(:foo).identifiers).to eq ["nobody"]
+      end
+      it "Guest は guest?" do
+        expect(StoreAgent::Guest.new.guest?).to be true
+      end
+    end
   end
 end
