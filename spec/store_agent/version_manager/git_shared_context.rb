@@ -162,6 +162,16 @@ RSpec.shared_context "git" do
       workspace.file("revision/update.txt").update("fuga")
       expect(workspace.file("revision/update.txt").read(revision: revision)).to eq "hoge"
     end
+    it "不正なバージョンを指定すると、例外が発生する" do
+      workspace.directory("revision/invalid_revision").create
+      workspace.file("revision/invalid_revision/file.txt").create("hoge")
+      expect do
+        workspace.directory("revision/invalid_revision").read(revision: "invalid")
+      end.to raise_error StoreAgent::InvalidRevisionError
+      expect do
+        workspace.file("revision/invalid_revision/file.txt").read(revision: "invalid")
+      end.to raise_error StoreAgent::InvalidRevisionError
+    end
   end
   context "パーミッションの変更がバージョン管理されている" do
     let :workspace do

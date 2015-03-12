@@ -67,10 +67,14 @@ module StoreAgent
 
       def read_directory(path: ".", revision: "HEAD")
         repository.gtree("#{revision}:#{relative_path(path)}").children.keys
+      rescue Git::GitExecuteError
+        raise StoreAgent::InvalidRevisionError.new(path: path, revision: revision)
       end
 
       def read_file(path: ".", revision: "HEAD")
         repository.gblob("#{revision}:#{relative_path(path)}").contents
+      rescue Git::GitExecuteError
+        raise StoreAgent::InvalidRevisionError.new(path: path, revision: revision)
       end
     end
   end
