@@ -10,10 +10,7 @@ module StoreAgent
         raise ArgumentError, "identifier(s) is required"
       end
       @identifiers = @identifiers.map do |identifier|
-        case
-        when identifier.is_a?(String), identifier.is_a?(Symbol)
-          stringify_identifier(identifier)
-        when identifier.is_a?(Array)
+        if identifier.is_a?(Array)
           case identifier.length
           when 0
             raise ArgumentError, "identifier(s) contains empty array"
@@ -23,7 +20,7 @@ module StoreAgent
             identifier.map{|id| stringify_identifier(id)}
           end
         else
-          raise ArgumentError, "identifier(s) must be String, Symbol or Array"
+          stringify_identifier(identifier)
         end
       end
     end

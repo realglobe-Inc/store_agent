@@ -217,7 +217,7 @@ RSpec.shared_context "git" do
     it "ファイルのコピー" do
       workspace.file("copy_file/src.txt").create("copy")
       workspace.file("copy_file/src.txt").copy("copy_file_dest/dest.txt")
-      scoped_dest_commit_id = workspace.version_manager.revisions("storage/copy_file_dest/dest.txt").first
+      scoped_dest_commit_id = workspace.file("copy_file_dest/dest.txt").revisions.first
       workspace_last_commit_id = workspace.version_manager.revisions.first
       expect(scoped_dest_commit_id).to eq workspace_last_commit_id
       expect(workspace.file("copy_file/src.txt").read).to eq "copy"
@@ -227,8 +227,8 @@ RSpec.shared_context "git" do
     it "ファイルの移動" do
       workspace.file("move_file/src.txt").create("move")
       workspace.file("move_file/src.txt").move("move_file_dest/dest.txt")
-      scoped_src_commit_id = workspace.version_manager.revisions("storage/move_file/src.txt").first
-      scoped_dest_commit_id = workspace.version_manager.revisions("storage/move_file_dest/dest.txt").first
+      scoped_src_commit_id = workspace.file("move_file/src.txt").revisions.first
+      scoped_dest_commit_id = workspace.file("move_file_dest/dest.txt").revisions.first
       workspace_last_commit_id = workspace.version_manager.revisions.first
       expect(scoped_src_commit_id).to eq workspace_last_commit_id
       expect(scoped_dest_commit_id).to eq workspace_last_commit_id
@@ -240,8 +240,8 @@ RSpec.shared_context "git" do
       workspace.directory("copy_dir/src_dir").create
       workspace.file("copy_dir/src_dir/foo.txt").create("copy")
       workspace.directory("copy_dir/src_dir").copy("copy_dir/dest_dir")
-      scoped_dest_dir_commit_id = workspace.version_manager.revisions("storage/copy_dir/dest_dir").first
-      scoped_dest_file_commit_id = workspace.version_manager.revisions("storage/copy_dir/dest_dir/foo.txt").first
+      scoped_dest_dir_commit_id = workspace.directory("copy_dir/dest_dir").revisions.first
+      scoped_dest_file_commit_id = workspace.file("copy_dir/dest_dir/foo.txt").revisions.first
       workspace_last_commit_id = workspace.version_manager.revisions.first
       expect(scoped_dest_dir_commit_id).to eq workspace_last_commit_id
       expect(scoped_dest_file_commit_id).to eq workspace_last_commit_id
@@ -253,10 +253,10 @@ RSpec.shared_context "git" do
       workspace.directory("move_dir/src_dir").create
       workspace.file("move_dir/src_dir/bar.txt").create("move")
       workspace.directory("move_dir/src_dir").move("move_dir/dest_dir")
-      scoped_src_dir_commit_id = workspace.version_manager.revisions("storage/move_dir/src_dir").first
-      scoped_src_file_commit_id = workspace.version_manager.revisions("storage/move_dir/src_dir/bar.txt").first
-      scoped_dest_dir_commit_id = workspace.version_manager.revisions("storage/move_dir/dest_dir").first
-      scoped_dest_file_commit_id = workspace.version_manager.revisions("storage/move_dir/dest_dir/bar.txt").first
+      scoped_src_dir_commit_id = workspace.directory("move_dir/src_dir").revisions.first
+      scoped_src_file_commit_id = workspace.file("move_dir/src_dir/bar.txt").revisions.first
+      scoped_dest_dir_commit_id = workspace.directory("move_dir/dest_dir").revisions.first
+      scoped_dest_file_commit_id = workspace.file("move_dir/dest_dir/bar.txt").revisions.first
       workspace_last_commit_id = workspace.version_manager.revisions.first
       expect(scoped_src_dir_commit_id).to eq workspace_last_commit_id
       expect(scoped_src_file_commit_id).to eq workspace_last_commit_id

@@ -23,6 +23,9 @@ RSpec.describe StoreAgent::Node::Metadata do
       @root_node = workspace.directory("/")
     end
 
+    it "JSON形式で保存される" do
+      expect(open(@root_node.metadata.file_path).read).to eq @root_node.metadata.inspect
+    end
     it "ルートディレクトリの使用容量は 4096 バイト" do
       expect(@root_node.metadata.disk_usage).to eq 4096
     end

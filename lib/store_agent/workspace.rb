@@ -17,7 +17,7 @@ module StoreAgent
 
     def create
       if exists?
-        raise "workspace #{@namespace} is already exists"
+        raise InvalidPathError, "workspace #{@namespace} is already exists"
       end
       FileUtils.mkdir_p(namespace_dirname)
       @version_manager.init
@@ -26,7 +26,7 @@ module StoreAgent
 
     def delete
       if !exists?
-        raise "workspace #{@namespace} not found"
+        raise InvalidPathError, "workspace #{@namespace} not found"
       end
       FileUtils.remove_dir(namespace_dirname)
     end

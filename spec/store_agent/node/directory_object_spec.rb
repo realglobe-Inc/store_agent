@@ -457,6 +457,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
         dir.create
         workspace.file("search_children/foo.txt").create
         workspace.directory("search_children/bar").create
+        workspace.directory("search_children/symlink_dir").create
       end
     end
 
@@ -503,13 +504,19 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
       it "パスがファイルなら、ファイルオブジェクトを返す" do
         expect(dir.find_object("foo.txt").class).to eq StoreAgent::Node::FileObject
       end
+      it "パスに非対応形式のファイルが存在する場合、例外が発生する" do
+        File.symlink("/dev/null", "#{dir.storage_object_path}/symlink_dir/symlink")
+        expect do
+          dir.find_object("symlink_dir/symlink")
+        end.to raise_error
+      end
       it "パスにファイルが存在しない場合、仮想オブジェクトを返す" do
         expect(dir.find_object("foobar.txt").class).to eq StoreAgent::Node::VirtualObject
       end
     end
     context "直下のファイル一覧を取得する" do
       it "ディレクトリの直下にあるファイル一覧を返す" do
-        expect(dir.children.map(&:path).sort).to eq ["/search_children/bar/", "/search_children/foo.txt"].sort
+        expect(dir.children.map(&:path).sort).to eq ["/search_children/bar/", "/search_children/foo.txt", "/search_children/symlink_dir/"].sort
       end
     end
   end
