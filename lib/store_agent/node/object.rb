@@ -74,6 +74,7 @@ module StoreAgent
 
       def touch(*)
         workspace.version_manager.transaction("touch #{path}") do
+          metadata.reload
           yield
           metadata.updated_at = Time.now
           metadata.save

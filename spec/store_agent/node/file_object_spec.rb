@@ -16,6 +16,7 @@ RSpec.describe StoreAgent::Node::FileObject do
       it "空のファイルが作成される" do
         workspace.file("foo.txt").create
         expect(workspace.file("foo.txt").read).to eq ""
+        expect(workspace.file("foo.txt").file?).to eq true
       end
     end
     context "引数に文字列を渡す場合" do
@@ -216,25 +217,72 @@ RSpec.describe StoreAgent::Node::FileObject do
     let :directory do
       workspace.directory("copy")
     end
-    let :file do
+    let :src_file do
       workspace.file("copy/src.txt")
-    end
-    let :dest_path do
-      "copy/dest.txt"
     end
     before do
       if !directory.exists?
         directory.create
-        file.create("copy")
-        workspace.file("copy/src.txt").copy(dest_path)
+        src_file.create("copy")
       end
     end
 
-    it "コピー先にファイルが作成される" do
-      expect(workspace.file(dest_path).read).to eq "copy"
+    context "コピー先にオブジェクトが無い場合" do
+      it "コピー先にファイルが作成され、メタデータが更新される" do
+        dest_create_path = "copy/dest_create.txt"
+
+        prev_count = workspace.directory("copy").directory_file_count
+        src_file.copy(dest_create_path)
+        expect(workspace.file(dest_create_path).read).to eq "copy"
+        expect(workspace.directory("copy").directory_file_count).to eq prev_count + 1
+      end
     end
-    it "メタデータが更新される" do
-      expect(workspace.directory("copy").directory_file_count).to eq 2
+    context "コピー先にファイルが存在する場合" do
+      it "コピー先のファイルが上書きされ、メタデータが更新される" do
+        dest_update_path = "copy/dest_update.txt"
+        workspace.file(dest_update_path).create("dest update file")
+
+        prev_count = workspace.directory("copy").directory_file_count
+        prev_bytesize = workspace.file(dest_update_path).metadata["bytes"]
+        src_file.copy(dest_update_path)
+        expect(workspace.file(dest_update_path).read).to eq "copy"
+        expect(workspace.file(dest_update_path).metadata["bytes"]).to eq 4
+        expect(workspace.directory("copy").directory_file_count).to eq prev_count
+      end
+    end
+    context "コピー先にディレクトリが存在する場合" do
+      it "コピー先のディレクトリ内に同名のオブジェクトが存在しない場合、ファイルが作成される" do
+        dest_directory_path = "copy/dest_dir"
+        workspace.directory(dest_directory_path).create
+
+        prev_count = workspace.directory(dest_directory_path).directory_file_count
+        prev_bytesize = workspace.directory(dest_directory_path).metadata["directory_bytes"]
+        src_file.copy(dest_directory_path)
+        expect(workspace.directory(dest_directory_path).file("src.txt").read).to eq "copy"
+        expect(workspace.directory(dest_directory_path).metadata["directory_bytes"]).to eq prev_bytesize + 4
+        expect(workspace.directory(dest_directory_path).directory_file_count).to eq prev_count + 1
+      end
+      it "コピー先のディレクトリ内に同名のファイルが存在する場合、そのファイルが上書きされる" do
+        dest_directory_path = "copy/dest_exists_file"
+        workspace.directory(dest_directory_path).create
+        workspace.directory(dest_directory_path).file("src.txt").create("file already exists")
+
+        prev_count = workspace.directory(dest_directory_path).directory_file_count
+        prev_bytesize = workspace.directory(dest_directory_path).metadata["directory_bytes"]
+        src_file.copy(dest_directory_path)
+        expect(workspace.directory(dest_directory_path).file("src.txt").read).to eq "copy"
+        expect(workspace.directory(dest_directory_path).metadata["directory_bytes"]).to eq prev_bytesize - 15
+        expect(workspace.directory(dest_directory_path).directory_file_count).to eq prev_count
+      end
+      it "コピー先のディレクトリ内に同名のディレクトリが存在する場合、例外が発生する" do
+        dest_directory_path = "copy/dest_exists_dir"
+        workspace.directory(dest_directory_path).create
+        workspace.directory(dest_directory_path).directory("src.txt").create
+
+        expect do
+          src_file.copy(dest_directory_path)
+        end.to raise_error StoreAgent::InvalidNodeTypeError
+      end
     end
   end
 
@@ -242,27 +290,74 @@ RSpec.describe StoreAgent::Node::FileObject do
     let :directory do
       workspace.directory("move")
     end
-    let :file do
+    let :src_file do
       workspace.file("move/src.txt")
-    end
-    let :dest_path do
-      "move_dest/dest.txt"
     end
     before do
       if !directory.exists?
         directory.create
-        workspace.directory("move_dest").create
-        file.create("move")
-        workspace.file("move/src.txt").move(dest_path)
+      end
+      if !src_file.exists?
+        src_file.create("move")
       end
     end
 
-    it "移動先にファイルが作成される" do
-      expect(workspace.file(dest_path).read).to eq "move"
+    context "移動先にオブジェクトが無い場合" do
+      it "移動先にファイルが作成され、メタデータが更新される" do
+        dest_create_path = "move/dest_create.txt"
+        prev_count = workspace.directory("move").directory_file_count
+        prev_bytesize = workspace.directory("move").metadata["bytes"]
+        src_file.move(dest_create_path)
+        expect(workspace.file(dest_create_path).read).to eq "move"
+        expect(workspace.directory("move").metadata["bytes"]).to eq prev_bytesize
+        expect(workspace.directory("move").directory_file_count).to eq prev_count
+      end
     end
-    it "メタデータが更新される" do
-      expect(workspace.directory("move").directory_file_count).to eq 0
-      expect(workspace.directory("move_dest").directory_file_count).to eq 1
+    context "移動先にファイルが存在する場合" do
+      it "移動先のファイルが上書きされ、メタデータが更新される" do
+        dest_update_path = "move/dest_update.txt"
+        workspace.file(dest_update_path).create("dest update file")
+        prev_count = workspace.directory("move").directory_file_count
+        prev_bytesize = workspace.file(dest_update_path).metadata["bytes"]
+        src_file.move(dest_update_path)
+        expect(workspace.file(dest_update_path).read).to eq "move"
+        expect(workspace.file(dest_update_path).metadata["bytes"]).to eq 4
+        expect(workspace.directory("move").directory_file_count).to eq prev_count - 1
+      end
+    end
+    context "移動先にディレクトリが存在する場合" do
+      it "移動先のディレクトリ内に同名のオブジェクトが存在しない場合、ファイルが作成される" do
+        dest_directory_path = "move/dest_dir"
+        workspace.directory(dest_directory_path).create
+
+        prev_count = workspace.directory(dest_directory_path).directory_file_count
+        prev_bytesize = workspace.directory(dest_directory_path).metadata["directory_bytes"]
+        src_file.move(dest_directory_path)
+        expect(workspace.directory(dest_directory_path).file("src.txt").read).to eq "move"
+        expect(workspace.directory(dest_directory_path).metadata["directory_bytes"]).to eq prev_bytesize + 4
+        expect(workspace.directory(dest_directory_path).directory_file_count).to eq prev_count + 1
+      end
+      it "移動先のディレクトリ内に同名のファイルが存在する場合、そのファイルが上書きされる" do
+        dest_directory_path = "move/dest_exists_file"
+        workspace.directory(dest_directory_path).create
+        workspace.directory(dest_directory_path).file("src.txt").create("file already exists")
+
+        prev_count = workspace.directory(dest_directory_path).directory_file_count
+        prev_bytesize = workspace.directory(dest_directory_path).metadata["directory_bytes"]
+        src_file.move(dest_directory_path)
+        expect(workspace.directory(dest_directory_path).file("src.txt").read).to eq "move"
+        expect(workspace.directory(dest_directory_path).metadata["directory_bytes"]).to eq prev_bytesize - 15
+        expect(workspace.directory(dest_directory_path).directory_file_count).to eq prev_count
+      end
+      it "移動先のディレクトリ内に同名のディレクトリが存在する場合、例外が発生する" do
+        dest_directory_path = "move/dest_exists_dir"
+        workspace.directory(dest_directory_path).create
+        workspace.directory(dest_directory_path).directory("src.txt").create
+
+        expect do
+          src_file.move(dest_directory_path)
+        end.to raise_error StoreAgent::InvalidNodeTypeError
+      end
     end
   end
 end

@@ -113,15 +113,15 @@ module StoreAgent
         end
       end
 
-      def find_object(path)
+      def find_object(_)
         raise "#{@path} is not directory"
       end
 
-      def directory(path)
+      def directory(_)
         raise "#{@path} is not directory"
       end
 
-      def file(path)
+      def file(_)
         raise "#{@path} is not directory"
       end
 
@@ -166,6 +166,10 @@ module StoreAgent
       def build_dest_file(dest_path)
         dest_object = workspace.find_object(dest_path)
         if dest_object.directory?
+          sub_directory_object = dest_object.find_object(File.basename(path))
+          if sub_directory_object.directory?
+            raise InvalidNodeTypeError.new(src_object: self, dest_object: sub_directory_object)
+          end
           dest_object.file(File.basename(path))
         else
           workspace.file(dest_path)

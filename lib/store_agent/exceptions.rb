@@ -2,6 +2,23 @@ module StoreAgent
   class InvalidPathError < StandardError
   end
 
+  class InvalidNodeTypeError < StandardError
+    attr_reader :src_object, :dest_object
+
+    def initialize(src_object: nil, dest_object: nil)
+      @src_object = src_object
+      @dest_object = dest_object
+    end
+
+    def to_s
+      if @src_object && @dest_object
+        "invalid node type: '#{@src_object.path}' is #{@src_object.filetype}, '#{@dest_object.path}' is #{@dest_object.filetype}"
+      else
+        "invalid node type"
+      end
+    end
+  end
+
   class PermissionDeniedError < StandardError
     attr_reader :errors, :object, :permission
 

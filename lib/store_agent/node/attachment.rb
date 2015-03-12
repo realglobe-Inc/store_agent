@@ -43,6 +43,7 @@ module StoreAgent
           f.write encoded_data
         end
         object.workspace.version_manager.add(file_path)
+        reload
       end
 
       def load
@@ -56,7 +57,7 @@ module StoreAgent
       end
 
       def reload
-        @data = load
+        @data = nil
         self
       end
 
