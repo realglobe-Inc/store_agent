@@ -5,20 +5,13 @@ module StoreAgent
     attr_reader :identifiers
 
     def initialize(*identifiers)
-      @identifiers = identifiers.compact
-      if @identifiers.empty?
+      identifiers.compact!
+      if identifiers.empty?
         raise ArgumentError, "identifier(s) is required"
       end
-      @identifiers = @identifiers.map do |identifier|
+      @identifiers = identifiers.map do |identifier|
         if identifier.is_a?(Array)
-          case identifier.length
-          when 0
-            raise ArgumentError, "identifier(s) contains empty array"
-          when 1
-            stringify_identifier(identifier.first)
-          else
-            identifier.map{|id| stringify_identifier(id)}
-          end
+          stringify_map_identifier(identifier)
         else
           stringify_identifier(identifier)
         end
@@ -53,6 +46,17 @@ module StoreAgent
       validates_to_be_not_superuser_identifier!(identifier)
       validates_to_be_not_guest_identifier!(identifier)
       identifier.to_s
+    end
+
+    def stringify_map_identifier(identifiers_array)
+      case identifiers_array.length
+      when 0
+        raise ArgumentError, "identifier(s) contains empty array"
+      when 1
+        stringify_identifier(identifiers_array.first)
+      else
+        identifiers_array.map{|id| stringify_identifier(id)}
+      end
     end
   end
 

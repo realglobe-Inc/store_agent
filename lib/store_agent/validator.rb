@@ -7,7 +7,7 @@ module StoreAgent
       when !value.is_a?(String) && !value.is_a?(Symbol)
         raise ArgumentError, "#{value} is not string or symbol"
       else
-        # true
+        true
       end
     end
 
