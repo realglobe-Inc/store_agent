@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = StoreAgent::VERSION
   spec.authors       = ["realglobe-Inc"]
   spec.email         = ["info@realglobe.jp"]
-  spec.summary       = %q{Simple Access Controlable Storage Interface.}
-  spec.description   = %q{Simple Access Controlable Storage Interface.}
+  spec.summary       = %q{Simple Access Controllable Storage Interface.}
+  spec.description   = %q{Simple Access Controllable Storage Interface.}
   spec.homepage      = "https://github.com/realglobe-Inc/store_agent"
   spec.licenses       = ["Apache License 2.0"]
 
