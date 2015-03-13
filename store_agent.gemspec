@@ -6,12 +6,12 @@ require 'store_agent/version'
 Gem::Specification.new do |spec|
   spec.name          = "store_agent"
   spec.version       = StoreAgent::VERSION
-  spec.authors       = ["s-oku"]
-  spec.email         = ["oku@realglobe.jp"]
+  spec.authors       = ["realglobe-Inc"]
+  spec.email         = ["info@realglobe.jp"]
   spec.summary       = %q{TODO: Write a short summary. Required.}
   spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
-  spec.license       = "MIT"
+  spec.homepage      = "https://github.com/realglobe-Inc/store_agent"
+  spec.licenses       = ["Apache License 2.0"]
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
