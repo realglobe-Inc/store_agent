@@ -1,4 +1,5 @@
 module StoreAgent
+  # ワークスペース
   class Workspace
     extend Forwardable
     include StoreAgent::Validator
@@ -6,7 +7,7 @@ module StoreAgent
     attr_reader :current_user, :namespace, :version_manager
     def_delegators :root, *%w(find_object directory file exists?)
 
-    def initialize(current_user: nil, namespace: nil)
+    def initialize(current_user: nil, namespace: nil) # :nodoc:
       @current_user = current_user
       @namespace = namespace
       validates_to_be_not_nil_value!(:current_user)
@@ -15,6 +16,7 @@ module StoreAgent
       @version_manager = StoreAgent.config.version_manager.new(workspace: self)
     end
 
+    # ワークスペースを新規作成する
     def create
       if exists?
         raise InvalidPathError, "workspace #{@namespace} is already exists"
@@ -24,6 +26,7 @@ module StoreAgent
       root.create
     end
 
+    # ワークスペースを削除する
     def delete
       if !exists?
         raise InvalidPathError, "workspace #{@namespace} not found"
@@ -31,26 +34,32 @@ module StoreAgent
       FileUtils.remove_dir(namespace_dirname)
     end
 
+    # ワークスペースのファイルツリーの最上位ノード
     def root
       @root ||= StoreAgent::Node::DirectoryObject.new(workspace: self, path: "/")
     end
 
+    # ワークスペースの絶対パス
     def namespace_dirname
       File.absolute_path("#{StoreAgent.config.storage_root}/#{@namespace}")
     end
 
+    # ストレージとして使用する領域の絶対パス
     def storage_dirname
       File.absolute_path("#{namespace_dirname}/#{StoreAgent.config.storage_dirname}")
     end
 
+    # メタデータの保存に使用する領域の絶対パス
     def metadata_dirname
       File.absolute_path("#{namespace_dirname}/#{StoreAgent.config.metadata_dirname}")
     end
 
+    # 権限情報の保存に使用する領域の絶対パス
     def permission_dirname
       File.absolute_path("#{namespace_dirname}/#{StoreAgent.config.permission_dirname}")
     end
 
+    # 全ワークスペース名の一覧を配列で返す
     def self.name_list
       if !File.exists?(StoreAgent.config.storage_root)
         FileUtils.mkdir(StoreAgent.config.storage_root)

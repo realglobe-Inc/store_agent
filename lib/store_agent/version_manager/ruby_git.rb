@@ -1,6 +1,9 @@
 module StoreAgent
   class VersionManager
+    # ruby-git(https://github.com/schacon/ruby-git) を使用してバージョン管理を行うクラス<br>
+    # StoreAgent::VersionManager を継承しているので、詳細はそちらを参照
     class RubyGit < VersionManager
+      # :enddoc:
       def self.reserved_filenames
         %w(.git .keep)
       end

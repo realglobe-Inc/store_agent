@@ -1,5 +1,6 @@
 module StoreAgent
   module Node
+    # ファイル
     class FileObject < Object
       attr_writer :body
 
@@ -88,12 +89,12 @@ module StoreAgent
         end
       end
 
-      def get_metadata(*)
+      def get_metadata(*) # :nodoc:
         super do
         end
       end
 
-      def get_permissions(*)
+      def get_permissions(*) # :nodoc:
         super do
         end
       end
@@ -113,15 +114,15 @@ module StoreAgent
         end
       end
 
-      def find_object(_)
+      def find_object(_) # :nodoc:
         raise "#{@path} is not directory"
       end
 
-      def directory(_)
+      def directory(_) # :nodoc:
         raise "#{@path} is not directory"
       end
 
-      def file(_)
+      def file(_) # :nodoc:
         raise "#{@path} is not directory"
       end
 
@@ -134,11 +135,11 @@ module StoreAgent
         end
       end
 
-      def children
+      def children # :nodoc:
         []
       end
 
-      def file?
+      def file? # :nodoc:
         true
       end
 

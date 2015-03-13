@@ -1,6 +1,6 @@
 module StoreAgent
   module Node
-    class VirtualObject < Object
+    class VirtualObject < Object # :nodoc:
       def exists?
         false
       end

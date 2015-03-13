@@ -1,5 +1,6 @@
 module StoreAgent
   module Node
+    # ファイルサイズ、作成者、更新日時などの情報
     class Metadata < Attachment
       def_delegators :data, *%w([] []=)
 
@@ -25,14 +26,16 @@ module StoreAgent
         super
       end
 
-      def base_path
+      def base_path # :nodoc:
         "#{@object.workspace.metadata_dirname}#{@object.path}"
       end
 
+      # オブジェクトのメタデータを保存しているファイルの絶対パス
       def file_path
         "#{base_path}#{StoreAgent.config.metadata_extension}"
       end
 
+      # ディスク使用量をバイトからキロバイトなどの単位に変換するメソッド
       def self.datasize_format(size)
         byte_names = %w(KB MB GB TB PB)
         byte_length = size.abs.to_s(2).length
@@ -86,7 +89,8 @@ module StoreAgent
         object.default_metadata
       end
 
-      class SuperRootMetadata < Metadata
+      # 最上位階層の親ディレクトリのメタデータとして振る舞うダミーのクラス
+      class SuperRootMetadata < Metadata # :nodoc:
         def initialize(*)
         end
 

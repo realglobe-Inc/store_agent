@@ -1,6 +1,8 @@
 module StoreAgent
   module Node
+    # オブジェクトの権限情報
     class Permission < Attachment
+      # オブジェクトに対して、引数で受け取った権限を持つなら true を返す
       def allow?(permission_name)
         case
         when current_user.super_user?
@@ -12,6 +14,7 @@ module StoreAgent
         end
       end
 
+      # 権限を設定する
       def set!(identifier: nil, permission_values: {})
         return if permission_values.empty?
         user_permission = [identifier].flatten.inject(data["users"]) do |r, id|
@@ -23,6 +26,7 @@ module StoreAgent
         save
       end
 
+      # 権限を解除する
       def unset!(identifier: nil, permission_names: [])
         identifiers = [identifier].flatten
         permission_names = [permission_names].flatten
@@ -36,10 +40,11 @@ module StoreAgent
         end
       end
 
-      def base_path
+      def base_path # :nodoc:
         "#{@object.workspace.permission_dirname}#{@object.path}"
       end
 
+      # オブジェクトの権限情報を保存しているファイルの絶対パス
       def file_path
         "#{base_path}#{StoreAgent.config.permission_extension}"
       end

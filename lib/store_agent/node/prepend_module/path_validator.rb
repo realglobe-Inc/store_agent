@@ -1,5 +1,6 @@
 module StoreAgent
   module Node
+    # オブジェクトの操作時に、パスが不正でないかをチェックするモジュール
     module PathValidator
       def create(*)
         if !root?
@@ -52,13 +53,13 @@ module StoreAgent
         super
       end
 
-      def get_metadata(*)
+      def get_metadata(*) # :nodoc:
         be_present!
         be_not_reserved!
         super
       end
 
-      def get_permissions(*)
+      def get_permissions(*) # :nodoc:
         be_present!
         be_not_reserved!
         super

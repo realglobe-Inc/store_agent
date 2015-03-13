@@ -9,3 +9,7 @@ require "store_agent/workspace"
 require "store_agent/node"
 require "store_agent/version_manager"
 require "store_agent/data_encoder"
+
+# https://github.com/realglobe-Inc/store_agent も参照。
+module StoreAgent
+end

@@ -1,5 +1,7 @@
 module StoreAgent
   module Node
+    # ファイルやディレクトリなど、オブジェクトの雛形となるクラス<br>
+    # 実際にはファイルやディレクトリなど、このクラスを継承したクラスを使用する
     class Object
       extend Forwardable
       include StoreAgent::Validator
@@ -11,34 +13,36 @@ module StoreAgent
       attr_reader :workspace, :path
       def_delegators :workspace, *%w(current_user)
 
-      def initialize(workspace: nil, path: "/")
+      def initialize(workspace: nil, path: "/") # :nodoc:
         @workspace = workspace
         validates_to_be_not_nil_value!(:workspace)
         @path = sanitize_path(path)
       end
 
+      # オブジェクトに紐づくメタデータのインスタンス
       def metadata
         @metadata ||= StoreAgent::Node::Metadata.new(object: self)
       end
 
+      # オブジェクトに紐づく権限情報のインスタンス
       def permission
         @permission ||= StoreAgent::Node::Permission.new(object: self)
       end
 
-      def initial_owner
+      def initial_owner # :nodoc:
         @initial_owner ||= current_user.identifier
       end
 
-      def initial_owner=(owner_identifier)
+      def initial_owner=(owner_identifier) # :nodoc:
         authorize!("chown")
         @initial_owner = owner_identifier
       end
 
-      def initial_permission
+      def initial_permission # :nodoc:
         @initial_permission ||= StoreAgent.config.default_owner_permission
       end
 
-      def initial_permission=(permissions)
+      def initial_permission=(permissions) # :nodoc:
         authorize!("chmod")
         @initial_permission = permissions
       end
@@ -94,12 +98,12 @@ module StoreAgent
         end
       end
 
-      def get_metadata(*)
+      def get_metadata(*) # :nodoc:
         yield
         metadata.data
       end
 
-      def get_permissions(*)
+      def get_permissions(*) # :nodoc:
         yield
         permission.data
       end
@@ -126,29 +130,33 @@ module StoreAgent
         end
       end
 
+      # 親階層のディレクトリオブジェクトを返す
       def parent_directory
         if !root?
           @parent_directory ||= StoreAgent::Node::DirectoryObject.new(workspace: @workspace, path: File.dirname(@path))
         end
       end
 
+      # バージョン管理をしている場合、変更があったリビジョンの一覧を返す
       def revisions
         workspace.version_manager.revisions("storage#{path}")
       end
 
+      # オブジェクトが存在するなら true を返す
       def exists?
         File.exists?(storage_object_path)
       end
 
+      # ファイルの種類。file、directory など
       def filetype
         File.ftype(storage_object_path)
       end
 
-      def initial_metadata
+      def initial_metadata # :nodoc:
         @initial_metadata ||= {}
       end
 
-      def default_metadata
+      def default_metadata # :nodoc:
         {
           "size" => StoreAgent::Node::Metadata.datasize_format(initial_bytesize),
           "bytes" => initial_bytesize,
@@ -161,18 +169,22 @@ module StoreAgent
         }.merge(initial_metadata)
       end
 
+      # true を返す場合、ファイルツリーの最上位ディレクトリとして認識される
       def root?
         @path == "/"
       end
 
+      # true を返す場合、ディレクトリとして認識される
       def directory?
         false
       end
 
+      # true を返す場合、ファイルとして認識される
       def file?
         false
       end
 
+      # オブジェクトの絶対パス
       def storage_object_path
         "#{@workspace.storage_dirname}#{@path}"
       end

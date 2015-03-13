@@ -1,9 +1,15 @@
 module StoreAgent
+  # オブジェクトの操作を行うユーザー
   class User
     include StoreAgent::Validator
 
     attr_reader :identifiers
 
+    # ユーザーの初期化は以下のようにして行う
+    #   StoreAgent::User.new("foo")
+    #   StoreAgent::User.new("foo", "bar")
+    #   StoreAgent::User.new(["foo", "bar", "baz"])
+    #   StoreAgent::User.new("foo", ["bar", "hoge"], "fuga")
     def initialize(*identifiers)
       identifiers.compact!
       if identifiers.empty?
@@ -18,7 +24,7 @@ module StoreAgent
       end
     end
 
-    def identifier_array
+    def identifier_array # :nodoc:
       [identifiers.last].flatten
     end
 
@@ -34,6 +40,7 @@ module StoreAgent
       false
     end
 
+    # 操作対象のワークスペースを指定する
     def workspace(namespace)
       StoreAgent::Workspace.new(current_user: self, namespace: namespace)
     end
@@ -60,22 +67,28 @@ module StoreAgent
     end
   end
 
+  # スーパーユーザーは全オブジェクトに対して全権限を持つ
+  #   super_user = StoreAgent::Superuser.new
+  #   super_user.workspace("ws").file("file.txt").create
   class Superuser < User
     def initialize(*)
       @identifiers = [StoreAgent.config.superuser_identifier]
     end
 
-    def super_user?
+    def super_user? # :nodoc:
       true
     end
   end
 
+  # ゲストユーザーはデフォルトの設定では何の権限も持たない
+  #   guest = StoreAgent::Guest.new
+  #   guest.workspace("ws").file("file.txt").read
   class Guest < User
     def initialize(*)
       @identifiers = [StoreAgent.config.guest_identifier]
     end
 
-    def guest?
+    def guest? # :nodoc:
       true
     end
   end

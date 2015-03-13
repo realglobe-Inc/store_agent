@@ -1,6 +1,9 @@
 module StoreAgent
   class VersionManager
+    # rugged(https://github.com/libgit2/rugged) を使用してバージョン管理を行うクラス<br>
+    # StoreAgent::VersionManager を継承しているので、詳細はそちらを参照
     class RuggedGit < VersionManager
+      # :enddoc:
       def self.reserved_filenames
         %w(.git .keep)
       end

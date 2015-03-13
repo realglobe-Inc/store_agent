@@ -1,7 +1,8 @@
 module StoreAgent
   module Node
+    # ディレクトリ
     class DirectoryObject < Object
-      def initialize(params)
+      def initialize(params) # :nodoc:
         super
         if !@path.end_with?("/")
           @path = "#{@path}/"
@@ -18,7 +19,6 @@ module StoreAgent
         end
       end
 
-      # TODO
       def read(revision: nil)
         super do
           filenames =
@@ -88,12 +88,12 @@ module StoreAgent
         end
       end
 
-      def get_metadata(*)
+      def get_metadata(*) # :nodoc:
         super do
         end
       end
 
-      def get_permissions(*)
+      def get_permissions(*) # :nodoc:
         super do
         end
       end
@@ -128,6 +128,7 @@ module StoreAgent
         end
       end
 
+      # 引数を現在のパスからの相対パスとして解釈し、オブジェクトのインスタンスを返す
       def find_object(path)
         object = StoreAgent::Node::Object.new(workspace: workspace, path: namespaced_absolute_path(path))
         case object.exists? && object.filetype
@@ -142,29 +143,32 @@ module StoreAgent
         end
       end
 
-      def virtual(path)
+      def virtual(path) # :nodoc:
         StoreAgent::Node::VirtualObject.new(workspace: workspace, path: namespaced_absolute_path(path))
       end
 
+      # 現在のパスからの相対パスで、ディレクトリオブジェクトのインスタンスを返す
       def directory(path)
         StoreAgent::Node::DirectoryObject.new(workspace: workspace, path: namespaced_absolute_path(path))
       end
 
+      # 現在のパスからの相対パスで、ファイルオブジェクトのインスタンスを返す
       def file(path)
         StoreAgent::Node::FileObject.new(workspace: workspace, path: namespaced_absolute_path(path))
       end
 
+      # 現在のディレクトリの直下にあるオブジェクトの一覧を返す
       def children
         (current_children_filenames - StoreAgent.reserved_filenames).map{|filename|
           find_object(filename)
         }
       end
 
-      def default_metadata
+      def default_metadata # :nodoc:
         super.merge(directory_metadata)
       end
 
-      def directory_metadata
+      def directory_metadata # :nodoc:
         {
           "is_dir" => true,
           "directory_size" => StoreAgent::Node::Metadata.datasize_format(initial_bytesize),
@@ -176,15 +180,17 @@ module StoreAgent
         }
       end
 
+      # ディレクトリ直下にあるファイル数
       def directory_file_count
         metadata["directory_file_count"]
       end
 
+      # ディレクトリ以下のツリー全体でのファイル数
       def tree_file_count
         metadata["tree_file_count"]
       end
 
-      def directory?
+      def directory? # :nodoc:
         true
       end
 

@@ -1,12 +1,19 @@
 module StoreAgent
   class DataEncoder
+    # データを OpenSSL AES-256-CBC で暗号化して保存するためのエンコーダ
+    #   StoreAgent.configure do |c|
+    #     c.storage_data_encoders = [StoreAgent::DataEncoder::OpensslAes256CbcEncoder]
+    #   end
+    # 暗号化にパスワードを使用する場合、環境変数で指定する
+    #   $ env STORE_AGENT_DATA_ENCODER_PASSWORD=password ruby-command
+    # 指定が無い場合には空文字列をパスワードとして使用する
     class OpensslAes256CbcEncoder < DataEncoder
-      def initialize
-        @default_password = ENV["STORE_AGENT_DATA_ENCODER_PASSWORD"] || ""
+      def initialize # :nodoc:
+        @password = ENV["STORE_AGENT_DATA_ENCODER_PASSWORD"] || ""
         @encryptor = OpenSSL::Cipher::AES.new(256, "CBC")
       end
 
-      def encode(data, password: @default_password, **_)
+      def encode(data, password: @password, **_)
         super do
           @encryptor.encrypt
           salt = OpenSSL::Random.random_bytes(8)
@@ -15,7 +22,7 @@ module StoreAgent
         end
       end
 
-      def decode(encrypted_data, password: @default_password, **_)
+      def decode(encrypted_data, password: @password, **_)
         super do
           @encryptor.decrypt
           encrypted_data.force_encoding("ASCII-8BIT")

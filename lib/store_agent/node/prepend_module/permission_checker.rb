@@ -1,5 +1,6 @@
 module StoreAgent
   module Node
+    # オブジェクトの操作時に権限があるかどうかをチェックするモジュール
     module PermissionChecker
       def create(*)
         if !root?
@@ -29,23 +30,25 @@ module StoreAgent
       end
 
       # TODO
+      # コピー先のwrite権限をチェックする
       def copy(dest_path = nil, *)
         authorize!("read")
         super
       end
 
       # TODO
+      # コピー先のwrite権限をチェックする
       def move(dest_path = nil, *)
         authorize!("write")
         super
       end
 
-      def get_metadata(*)
+      def get_metadata(*) # :nodoc:
         authorize!("read")
         super
       end
 
-      def get_permissions(*)
+      def get_permissions(*) # :nodoc:
         authorize!("read")
         super
       end

@@ -1,5 +1,6 @@
 module StoreAgent
   module Node
+    # オブジェクトの読み書き時にファイルをロックするモジュール
     module Locker
       def create(*)
         lock!(lock_mode: File::LOCK_EX, recursive: true) do
@@ -32,22 +33,24 @@ module StoreAgent
       end
 
       # TODO
+      # コピー元を共有ロック、コピー先を排他ロックする
       def copy(dest_path = nil, *)
         super
       end
 
       # TODO
+      # 移動元と移動先を排他ロックする
       def move(dest_path = nil, *)
         super
       end
 
-      def get_metadata(*)
+      def get_metadata(*) # :nodoc:
         lock!(lock_mode: File::LOCK_SH, recursive: true) do
           super
         end
       end
 
-      def get_permissions(*)
+      def get_permissions(*) # :nodoc:
         lock!(lock_mode: File::LOCK_SH, recursive: true) do
           super
         end
@@ -59,8 +62,8 @@ module StoreAgent
         end
       end
 
-      # TODO recursive_to_root, recursive_to_leaf
-      # TODO lock_shared recursive_to_root
+      # TODO
+      # 親階層のファイルをロックする
       def set_permission(*)
         lock!(lock_mode: File::LOCK_EX, recursive: false) do
           super
@@ -68,6 +71,7 @@ module StoreAgent
       end
 
       # TODO
+      # 親階層のファイルをロックする
       def unset_permission(*)
         lock!(lock_mode: File::LOCK_EX, recursive: false) do
           super

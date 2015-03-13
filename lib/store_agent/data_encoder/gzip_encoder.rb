@@ -2,6 +2,11 @@ require "zlib"
 
 module StoreAgent
   class DataEncoder
+    # データをgzip圧縮して保存するためのエンコーダ<br>
+    # 使用する際には StoreAgent.configure で初期化時に指定する
+    #   StoreAgent.configure do |c|
+    #     c.storage_data_encoders = [StoreAgent::DataEncoder::GzipEncoder.new]
+    #   end
     class GzipEncoder < DataEncoder
       def encode(data, **_)
         super do
