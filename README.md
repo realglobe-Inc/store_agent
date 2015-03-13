@@ -29,7 +29,7 @@ Or install it yourself as:
 ```ruby
 # 一般ユーザー
 user = StoreAgent::User.new("user_xxx")
-user = StoreAgent::User.new(:user_yyy) # シンボルは文字列に変換される
+user = StoreAgent::User.new(:user_xxx) # シンボルは文字列に変換される
 # ルートユーザー
 root_user = StoreAgent::Superuser.new
 # ゲストユーザー
@@ -46,8 +46,9 @@ group_user = StoreAgent::User.new("group_001", "group_002", ..., "user_xxx")
 group_user.identifier # => "user_xxx"
 ```
 
-IDとして文字列ではなく配列を渡すと、ネームスペースで分けられたIDを指定する事ができる。  
+IDとして文字列ではなく配列を渡すと、権限情報をネームスペースで分ける事ができる。  
 権限情報は配列の要素の順にネストして保存され、権限チェックはネームスペースを順に辿って行う。  
+同じユーザーでもネームスペースが違うと、それぞれ別の権限情報を持つ事になる。  
 ファイルやディレクトリの作成者としては配列の先頭要素が使用される。  
 
 ```ruby
