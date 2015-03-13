@@ -92,36 +92,56 @@ RSpec.describe StoreAgent::Node::Permission do
         dir = owner.workspace(workspace_name).directory("bar")
         if !dir.exists?
           dir.create
-          owner.workspace(workspace_name).file("bar/hoge.txt").create("body" => "1234567890")
+          owner.workspace(workspace_name).file("bar/fuga.txt").create("body" => "1234567890")
         end
       end
 
       it "ファイルの権限を変更する" do
+        owner.workspace(workspace_name).file("bar/hoge.txt").create("body" => "1234567890")
         owner.workspace(workspace_name).file("bar/hoge.txt").set_permission(identifier: "user_id", permission_values: {"read" => true})
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("read")).to be true
+        expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.data["users"]["user_id"]).to eq ({"read" => true})
         owner.workspace(workspace_name).file("bar/hoge.txt").set_permission(identifier: "user_id", permission_values: {"read" => false})
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("read")).to be false
         owner.workspace(workspace_name).file("bar/hoge.txt").set_permission(identifier: "user_id", permission_values: {"read" => true})
         owner.workspace(workspace_name).file("bar/hoge.txt").unset_permission(identifier: "user_id", permission_names: "read")
         expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("read")).to be false
+        expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.data["users"].key?("user_id")).to eq false
       end
       it "ディレクトリの単独の権限を変更した場合、配下ファイルの権限は変わらない" do
         owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"write" => true})
-        expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("write")).to be false
+        expect(user.workspace(workspace_name).file("bar/fuga.txt").permission.allow?("write")).to be false
         owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"write" => false})
-        expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("write")).to be false
+        expect(user.workspace(workspace_name).file("bar/fuga.txt").permission.allow?("write")).to be false
         owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"write" => true}, recursive: true)
         owner.workspace(workspace_name).directory("bar").unset_permission(identifier: "user_id", permission_names: "write")
-        expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("write")).to be true
+        expect(user.workspace(workspace_name).file("bar/fuga.txt").permission.allow?("write")).to be true
       end
       it "サブツリー全体の権限を変更した場合、配下ファイルの権限も変更される" do
         owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"execute" => true}, recursive: true)
-        expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("execute")).to be true
+        expect(user.workspace(workspace_name).file("bar/fuga.txt").permission.allow?("execute")).to be true
         owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"execute" => false}, recursive: true)
-        expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("execute")).to be false
+        expect(user.workspace(workspace_name).file("bar/fuga.txt").permission.allow?("execute")).to be false
         owner.workspace(workspace_name).directory("bar").set_permission(identifier: "user_id", permission_values: {"execute" => true}, recursive: true)
         owner.workspace(workspace_name).directory("bar").unset_permission(identifier: "user_id", permission_names: "execute", recursive: true)
-        expect(user.workspace(workspace_name).file("bar/hoge.txt").permission.allow?("execute")).to be false
+        expect(user.workspace(workspace_name).file("bar/fuga.txt").permission.allow?("execute")).to be false
+      end
+      it "ID が配列のユーザーに対して権限を変更する" do
+        owner.workspace(workspace_name).file("namespaced.txt").create
+        owner.workspace(workspace_name).file("namespaced.txt").set_permission(identifier: ["user_id", "namespaced_id"], permission_values: {"chmod" => true}, recursive: true)
+        expect(namespaced_user.workspace(workspace_name).file("namespaced.txt").permission.allow?("chmod")).to be true
+        expect(user.workspace(workspace_name).file("namespaced.txt").permission.allow?("chmod")).to be false
+        expect(namespaced_user.workspace(workspace_name).file("namespaced.txt").permission.data["users"]["user_id"]).to eq ({"namespaced_id" => {"chmod" => true}})
+        owner.workspace(workspace_name).file("namespaced.txt").unset_permission(identifier: ["user_id", "namespaced_id"], permission_names: "chown")
+        expect(namespaced_user.workspace(workspace_name).file("namespaced.txt").permission.allow?("chmod")).to be true
+        expect(namespaced_user.workspace(workspace_name).file("namespaced.txt").permission.allow?("chown")).to be false
+        expect(namespaced_user.workspace(workspace_name).file("namespaced.txt").permission.data["users"]["user_id"]).to eq ({"namespaced_id" => {"chmod" => true}})
+        owner.workspace(workspace_name).file("namespaced.txt").unset_permission(identifier: ["user_id", "namespaced_id"], permission_names: "chmod")
+        expect(namespaced_user.workspace(workspace_name).file("namespaced.txt").permission.allow?("chmod")).to be false
+        expect(namespaced_user.workspace(workspace_name).file("namespaced.txt").permission.data["users"]["user_id"]).to eq nil
+        owner.workspace(workspace_name).file("namespaced.txt").set_permission(identifier: ["deep", "nested", "namespace"], permission_values: {})
+        expect(namespaced_user.workspace(workspace_name).file("namespaced.txt").permission.data["users"]["user_id"]).to eq nil
+        owner.workspace(workspace_name).file("namespaced.txt").set_permission(identifier: ["user_id", "deep", "nested", "namespace"], permission_values: {"read" => true})
       end
     end
 

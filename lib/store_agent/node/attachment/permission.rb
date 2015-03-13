@@ -13,7 +13,10 @@ module StoreAgent
       end
 
       def set!(identifier: nil, permission_values: {})
-        user_permission = (data["users"][identifier] ||= {})
+        return if permission_values.empty?
+        user_permission = [identifier].flatten.inject(data["users"]) do |r, id|
+          r[id] ||= {}
+        end
         permission_values.each do |permission_name, value|
           user_permission[permission_name] = value
         end
@@ -21,14 +24,14 @@ module StoreAgent
       end
 
       def unset!(identifier: nil, permission_names: [])
+        identifiers = [identifier].flatten
         permission_names = [permission_names].flatten
-        if user_permission = data["users"][identifier]
+        user_permission = find_permission(data["users"], identifiers)
+        if user_permission
           user_permission.delete_if do |permission_name, _|
             permission_names.include?(permission_name)
           end
-          if user_permission.empty?
-            data["users"].delete(identifier)
-          end
+          sweep_permission(data["users"], identifiers)
           save
         end
       end
@@ -42,6 +45,31 @@ module StoreAgent
       end
 
       private
+
+      def find_permission(data, identifiers)
+        identifier = identifiers.first
+        next_data = data[identifier]
+        next_identifiers = identifiers[1..-1]
+        case
+        when next_identifiers.empty?
+          next_data
+        when next_data
+          find_permission(next_data, next_identifiers)
+        else
+          nil
+        end
+      end
+
+      def sweep_permission(data, identifiers)
+        identifier = identifiers.first
+        next_data = data[identifier]
+        if next_data
+          sweep_permission(next_data, identifiers[1..-1])
+          if next_data.empty?
+            data.delete(identifier)
+          end
+        end
+      end
 
       def get_permission_value(permission_name)
         current_user.identifiers.reverse.each do |identifier|
