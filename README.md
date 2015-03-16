@@ -1,6 +1,6 @@
 # StoreAgent
 
-TODO: Write a gem description
+Simple Access Controllable Storage Interface.
 
 ## Installation
 
