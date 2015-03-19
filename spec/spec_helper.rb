@@ -7,6 +7,9 @@ SimpleCov.start do
 end
 
 require "store_agent"
+if !File.exists?(StoreAgent.config.storage_root)
+  FileUtils.mkdir_p(StoreAgent.config.storage_root)
+end
 $directory_bytesize = File.size(StoreAgent.config.storage_root)
 
 RSpec.configure do |config|

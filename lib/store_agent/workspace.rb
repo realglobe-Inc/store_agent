@@ -78,7 +78,7 @@ module StoreAgent
     # 全ワークスペース名の一覧を配列で返す
     def self.name_list
       if !File.exists?(StoreAgent.config.storage_root)
-        FileUtils.mkdir(StoreAgent.config.storage_root)
+        FileUtils.mkdir_p(StoreAgent.config.storage_root)
       end
       FileUtils.cd(StoreAgent.config.storage_root) do
         return Dir.glob("*", File::FNM_DOTMATCH) - StoreAgent.reserved_filenames
