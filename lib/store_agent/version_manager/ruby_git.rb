@@ -41,7 +41,8 @@ module StoreAgent
 
       def remove(*paths, **_)
         super do
-          repository.remove(paths, recursive: true)
+          # TODO fix
+          repository.lib.send(:command, 'rm', ['-f', '-r', '--cached', '--'] + paths)
         end
       end
 
