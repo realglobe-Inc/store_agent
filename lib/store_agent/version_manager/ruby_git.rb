@@ -27,6 +27,8 @@ module StoreAgent
       def init
         super do
           Git.init
+          repository.config["user.name"] || repository.config("user.name", "test_user")
+          repository.config["user.email"] || repository.config("user.email", "test@example.com")
         end
       end
 

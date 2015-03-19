@@ -27,6 +27,8 @@ module StoreAgent
       def init
         super do
           Rugged::Repository.init_at(".")
+          repository.config["user.name"] ||= "test_user"
+          repository.config["user.email"] ||= "test@example.com"
         end
       end
 
