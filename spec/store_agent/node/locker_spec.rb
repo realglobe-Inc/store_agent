@@ -24,7 +24,7 @@ RSpec.describe StoreAgent::Node::Locker do
     user.workspace("test_lock")
   end
   before do
-    skip "時間かかるのでスキップ"
+    # skip "時間かかるのでスキップ"
   end
   before :all do
     workspace = StoreAgent::User.new("foo").workspace("test_lock")
