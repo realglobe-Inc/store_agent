@@ -160,8 +160,8 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
             workspace.directory("/")
           end
 
-          it "ディスク使用量は 4096 * 4 + 30 バイト" do
-            expect(root_node.metadata.disk_usage).to eq ((4096 * 4) + 30)
+          it "ディスク使用量は #{$directory_bytesize} * 4 + 30 バイト" do
+            expect(root_node.metadata.disk_usage).to eq (($directory_bytesize * 4) + 30)
           end
           it "直下のファイル数は 1" do
             expect(root_node.directory_file_count).to eq 1
@@ -175,8 +175,8 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
             workspace.directory("/delete_test")
           end
 
-          it "ディスク使用量は 4096 * 3 + 30 バイト" do
-            expect(dir.metadata.disk_usage).to eq ((4096 * 3) + 30)
+          it "ディスク使用量は #{$directory_bytesize} * 3 + 30 バイト" do
+            expect(dir.metadata.disk_usage).to eq (($directory_bytesize * 3) + 30)
           end
           it "直下のファイル数は 2" do
             expect(dir.directory_file_count).to eq 2
@@ -190,8 +190,8 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
             workspace.directory("/delete_test/bar")
           end
 
-          it "ディスク使用量は 4096 + 10 バイト" do
-            expect(dir.metadata.disk_usage).to eq (4096 + 10)
+          it "ディスク使用量は #{$directory_bytesize} + 10 バイト" do
+            expect(dir.metadata.disk_usage).to eq ($directory_bytesize + 10)
           end
           it "直下のファイル数は 1" do
             expect(dir.directory_file_count).to eq 1
@@ -205,8 +205,8 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
             workspace.directory("/delete_test/foobar")
           end
 
-          it "ディスク使用量は 4096 + 20 バイト" do
-            expect(dir.metadata.disk_usage).to eq (4096 + 20)
+          it "ディスク使用量は #{$directory_bytesize} + 20 バイト" do
+            expect(dir.metadata.disk_usage).to eq ($directory_bytesize + 20)
           end
           it "直下のファイル数は 1" do
             expect(dir.directory_file_count).to eq 1
@@ -313,7 +313,7 @@ RSpec.describe StoreAgent::Node::DirectoryObject do
         prev_bytesize = workspace.directory("copy").metadata["directory_bytes"]
         src_dir.copy(dest_directory_path)
         expect(workspace.directory(dest_directory_path).file("src/foo.txt").read).to eq "copy"
-        expect(workspace.directory("copy").metadata["directory_bytes"]).to eq prev_bytesize + 4096 + 4
+        expect(workspace.directory("copy").metadata["directory_bytes"]).to eq prev_bytesize + $directory_bytesize + 4
         expect(workspace.directory("copy").tree_file_count).to eq prev_count + 2
       end
       it "コピー先のディレクトリ内に同名のファイルが存在する場合、例外が発生する" do

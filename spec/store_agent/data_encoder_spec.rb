@@ -66,7 +66,7 @@ RSpec.describe StoreAgent::DataEncoder do
     dir = workspace.directory("bitesize_test").create
     file = workspace.file("bitesize_test/hoge.txt").create("12 byte file")
     expect(file.metadata["bytes"]).to eq 12
-    expect(workspace.directory("bitesize_test").metadata.disk_usage).to eq 4108
+    expect(workspace.directory("bitesize_test").metadata.disk_usage).to eq ($directory_bytesize + 12)
   end
   it "パーミッション情報は gzip -c ... | openssl ... でエンコードされた形式で保存される" do
     file = workspace.file("foo/bar.txt")
