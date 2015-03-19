@@ -7,6 +7,7 @@ SimpleCov.start do
 end
 
 require "store_agent"
+$directory_bytesize = File.size(StoreAgent.config.storage_root)
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
@@ -28,7 +29,6 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   config.before(:suite) do
-    $directory_bytesize = File.size(".")
     StoreAgent.configure do |config|
       config.json_indent_level = 2
       config.default_owner_permission = {
