@@ -42,7 +42,10 @@ module StoreAgent
       def remove(*paths, **_)
         super do
           # TODO fix
-          repository.lib.send(:command, 'rm --cached -f -r', paths)
+          paths_string = paths.map{|path| relative_path(path)}.join(" ")
+          repository.chdir do
+            `git rm --cached -f -r #{paths_string}`
+          end
         end
       end
 
