@@ -18,6 +18,10 @@ Or install it yourself as:
 
     $ gem install store_agent
 
+## Build Status
+
+[![Build Status](https://travis-ci.org/realglobe-Inc/store_agent.svg?branch=master)](https://travis-ci.org/realglobe-Inc/store_agent)
+
 ## Usage
 
 基本的な使用方法は以下。  
