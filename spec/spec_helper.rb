@@ -1,12 +1,13 @@
 require "simplecov"
-require 'coveralls'
+require "coveralls"
 
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
 SimpleCov.start do
-  require "bundler"
-  add_filter Bundler::bundle_path.to_s
-  add_filter File.dirname(__FILE__)
+  add_filter '.bundle/'
 end
-Coveralls.wear!
 
 require "store_agent"
 if !File.exists?(StoreAgent.config.storage_root)
