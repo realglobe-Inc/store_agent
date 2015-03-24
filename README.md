@@ -21,6 +21,7 @@ Or install it yourself as:
 ## Build Status
 
 [![Build Status](https://travis-ci.org/realglobe-Inc/store_agent.svg?branch=master)](https://travis-ci.org/realglobe-Inc/store_agent)
+[![Coverage Status](https://coveralls.io/repos/realglobe-Inc/store_agent/badge.svg)](https://coveralls.io/r/realglobe-Inc/store_agent)
 
 ## Usage
 
