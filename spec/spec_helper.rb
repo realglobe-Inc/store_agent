@@ -8,6 +8,7 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 SimpleCov.start do
   add_filter '.bundle/'
 end
+Coveralls.wear!
 
 require "store_agent"
 if !File.exists?(StoreAgent.config.storage_root)
